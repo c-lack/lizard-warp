@@ -18,7 +18,7 @@ export default class WiggleServerEngine extends ServerEngine {
         let player = new Wiggle(this.gameEngine, null, { position: this.gameEngine.randPos() });
         player.direction = 2*Math.PI*Math.random();
         player.speed = 0.03;
-        player.headRadius = 0.5;
+        player.headRadius = 0.2;
         player.playerId = socket.playerId;
         this.gameEngine.addObjectToWorld(player);
     }
@@ -48,6 +48,13 @@ export default class WiggleServerEngine extends ServerEngine {
                   this.killWiggle(w);
                   this.killWiggle(w2);
                 }
+            }
+
+            // wall
+            var x = w.position.x;
+            var y = w.position.y;
+            if (( x + w.headRadius > 8 ) || ( x - w.headRadius < -8 ) || ( y + w.headRadius > 4.5 ) || ( y - w.headRadius < -4.5 )) {
+              this.killWiggle(w);
             }
         }
     }

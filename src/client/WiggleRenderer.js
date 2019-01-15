@@ -47,10 +47,13 @@ export default class WiggleRenderer extends Renderer {
         ctx.translate(game.w/2, game.h/2); // Translate to the center
         ctx.scale(this.clientEngine.zoom, this.clientEngine.zoom);  // Zoom in and flip y axis
 
-        // Draw all things
+        // Draw all lizards
         game.world.forEachObject((id, obj) => {
             if (obj instanceof Wiggle) this.drawWiggle(obj);
         });
+
+        // Draw bounds
+        this.drawBounds();
 
         ctx.restore();
 
