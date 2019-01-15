@@ -1,6 +1,7 @@
 import GameEngine from 'lance/GameEngine';
 import SimplePhysicsEngine from 'lance/physics/SimplePhysicsEngine';
 import TwoVector from 'lance/serialize/TwoVector';
+import ThreeVector from 'lance/serialize/ThreeVector';
 import Wiggle from './Wiggle';
 
 export default class WiggleGameEngine extends GameEngine {
@@ -15,8 +16,6 @@ export default class WiggleGameEngine extends GameEngine {
             headRadius: 0.1, bodyRadius: 0.1,
             spaceWidth: 16, spaceHeight: 9,
         });
-
-        this.begin = this.begin.bind(this);
     }
 
     registerClasses(serializer) {
@@ -25,15 +24,6 @@ export default class WiggleGameEngine extends GameEngine {
 
     start() {
       super.start();
-      // setTimeout(this.begin, 3000);
-    }
-
-    begin() {
-      this.world.forEachObject((id, obj) => {
-        if (obj instanceof Wiggle) {
-          obj.speed = 0.03;
-        }
-      })
     }
 
     randPos() {
@@ -50,15 +40,14 @@ export default class WiggleGameEngine extends GameEngine {
         this.world.forEachObject((id, obj) => {
             if (obj instanceof Wiggle) {
 
+                // save current pos
+                if (obj.speed > 0) {
+                  obj.trail.push(new ThreeVector(obj.position.x, obj.position.y, obj.direction))
+                }
+
                 let move = new TwoVector(Math.cos(obj.direction), Math.sin(obj.direction));
                 move.multiplyScalar(obj.speed);
                 obj.position.add(move);
-
-                // Bound by box
-                obj.position.y = Math.min(obj.position.y, this.spaceHeight / 2);
-                obj.position.y = Math.max(obj.position.y, -this.spaceHeight / 2);
-                obj.position.x = Math.min(obj.position.x, this.spaceWidth / 2);
-                obj.position.x = Math.max(obj.position.x, -this.spaceWidth / 2);
             }
         });
     }
@@ -71,9 +60,9 @@ export default class WiggleGameEngine extends GameEngine {
         let player = this.world.queryObject({ playerId });
         if (player) {
             if (inputData.input === 'left') {
-              player.direction -= 0.07;
+              player.direction -= 0.04;
             } else if (inputData.input === 'right') {
-              player.direction += 0.07;
+              player.direction += 0.04;
             // } else if (inputData.input === 'up') {
             //   player.headRadius *= 1.01;
             // } else if (inputData.input === 'down') {

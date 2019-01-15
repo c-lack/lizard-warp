@@ -1,4 +1,5 @@
 import ServerEngine from 'lance/ServerEngine';
+import TwoVector from 'lance/serialize/TwoVector';
 import Wiggle from '../common/Wiggle';
 
 export default class WiggleServerEngine extends ServerEngine {
@@ -41,18 +42,41 @@ export default class WiggleServerEngine extends ServerEngine {
                 if (w === w2)
                     continue;
 
+                // tail
+                w2.trail.map((p) => {
+                  let distance = p.clone().subtract(w.position);
+                  if (distance.length() < 0.35*w.headRadius + w2.headRadius/10) {
+                    this.killWiggle(w);
+                  }
+                })
+
                 // Head to head
                 let distance = w2.position.clone().subtract(w.position);
-                if (distance.length() < w.headRadius/2 + w2.headRadius/2) {
+                if (distance.length() < 0.35*w.headRadius + 0.35*w2.headRadius) {
                   this.killWiggle(w);
                   this.killWiggle(w2);
                 }
             }
 
+            // own tail
+            w.trail.map((p) => {
+              if (Math.abs(w.direction - p.z) < 0.5) {
+                return
+              }
+              let pos = new TwoVector(p.x, p.y)
+              let distance = pos.subtract(w.position);
+              if (distance.length() < 0.35*w.headRadius + w.headRadius/10) {
+                this.killWiggle(w);
+              }
+            })
+
             // wall
             var x = w.position.x;
             var y = w.position.y;
-            if (( x + w.headRadius/2 > 8 ) || ( x - w.headRadius/2 < -8 ) || ( y + w.headRadius/2 > 4.5 ) || ( y - w.headRadius/2 < -4.5 )) {
+            if (( x + 0.35*w.headRadius > 8 )
+                || ( x - 0.35*w.headRadius < -8 )
+                || ( y + 0.35*w.headRadius > 4.5 )
+                || ( y - 0.35*w.headRadius < -4.5 )) {
               this.killWiggle(w);
             }
         }

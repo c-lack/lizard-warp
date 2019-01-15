@@ -50,7 +50,9 @@ export default class WiggleRenderer extends Renderer {
 
         // Draw all lizards
         game.world.forEachObject((id, obj) => {
-            if (obj instanceof Wiggle) this.drawWiggle(obj);
+            if (obj instanceof Wiggle) {
+              this.drawWiggle(obj);
+            }
         });
 
         // Draw bounds
@@ -66,7 +68,8 @@ export default class WiggleRenderer extends Renderer {
         let isPlayer = w.playerId === this.gameEngine.playerId;
         let x = w.position.x;
         let y = w.position.y;
-        // this.drawCircle(x, y, w.headRadius/2, false);
+        // this.drawCircle(x, y, 0.7*w.headRadius/2, false);
+        this.drawTrail(w);
         this.drawLizard(x,y,w.headRadius,w.direction);
     }
 
@@ -99,6 +102,12 @@ export default class WiggleRenderer extends Renderer {
         currentFrame = 0;
       }
       currentFrame++;
+    }
+
+    drawTrail(w) {
+      w.trail.map(p => {
+        this.drawCircle(p.x,p.y,w.headRadius/10,true);
+      })
     }
 
     drawBounds() {
