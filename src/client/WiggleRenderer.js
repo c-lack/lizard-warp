@@ -11,10 +11,11 @@ var lizardImage = new Image();
 lizardImage.src = "/sprites/lizard.png";
 
 var shift = 0;
-var frameWidth = 43;
-var frameHeight = 40;
-var totalFrames = 20;
+var frameWidth = 150;
+var frameHeight = 150;
+var totalFrames = 4;
 var currentFrame = 0;
+var frameCount = 0;
 
 export default class WiggleRenderer extends Renderer {
 
@@ -65,7 +66,7 @@ export default class WiggleRenderer extends Renderer {
         let isPlayer = w.playerId === this.gameEngine.playerId;
         let x = w.position.x;
         let y = w.position.y;
-        this.drawCircle(x, y, w.headRadius, false);
+        // this.drawCircle(x, y, w.headRadius/2, false);
         this.drawLizard(x,y,w.headRadius,w.direction);
     }
 
@@ -79,16 +80,24 @@ export default class WiggleRenderer extends Renderer {
     drawLizard(x,y,radius,dir) {
       ctx.save();
       ctx.translate(x,y);
-      ctx.rotate(dir - Math.PI/2);
+      ctx.rotate(dir + Math.PI/2);
       ctx.drawImage(lizardImage, shift, 0, frameWidth, frameHeight,
                     -0.5*radius,-0.5*radius, radius, radius);
       ctx.restore();
-      shift += (currentFrame % 2) * (frameWidth + 1);
+
+      // Calculations for animation speed
+      // TODO: Change 16 to be dependent on speed
+      if (frameCount < 16) {
+        frameCount ++;
+        return
+      }
+
+      frameCount = 0;
+      shift += (frameWidth + 1);
       if (currentFrame == totalFrames) {
         shift = 0;
         currentFrame = 0;
       }
-
       currentFrame++;
     }
 

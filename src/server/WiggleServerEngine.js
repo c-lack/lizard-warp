@@ -8,17 +8,16 @@ export default class WiggleServerEngine extends ServerEngine {
         this.gameEngine.on('postStep', this.stepLogic.bind(this));
     }
 
-    // create food and AI robots
     start() {
-        super.start();
+      super.start();
     }
 
     onPlayerConnected(socket) {
         super.onPlayerConnected(socket);
-        let player = new Wiggle(this.gameEngine, null, { position: this.gameEngine.randPos() });
+        let player = new Wiggle(this.gameEngine, null, { position: this.gameEngine.randPos().multiplyScalar(0.7) });
         player.direction = 2*Math.PI*Math.random();
-        player.speed = 0.03;
-        player.headRadius = 0.2;
+        player.speed = 0.02;
+        player.headRadius = 0.5;
         player.playerId = socket.playerId;
         this.gameEngine.addObjectToWorld(player);
     }
@@ -44,7 +43,7 @@ export default class WiggleServerEngine extends ServerEngine {
 
                 // Head to head
                 let distance = w2.position.clone().subtract(w.position);
-                if (distance.length() < w.headRadius + w2.headRadius) {
+                if (distance.length() < w.headRadius/2 + w2.headRadius/2) {
                   this.killWiggle(w);
                   this.killWiggle(w2);
                 }
@@ -53,7 +52,7 @@ export default class WiggleServerEngine extends ServerEngine {
             // wall
             var x = w.position.x;
             var y = w.position.y;
-            if (( x + w.headRadius > 8 ) || ( x - w.headRadius < -8 ) || ( y + w.headRadius > 4.5 ) || ( y - w.headRadius < -4.5 )) {
+            if (( x + w.headRadius/2 > 8 ) || ( x - w.headRadius/2 < -8 ) || ( y + w.headRadius/2 > 4.5 ) || ( y - w.headRadius/2 < -4.5 )) {
               this.killWiggle(w);
             }
         }

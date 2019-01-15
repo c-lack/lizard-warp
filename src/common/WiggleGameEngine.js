@@ -15,6 +15,8 @@ export default class WiggleGameEngine extends GameEngine {
             headRadius: 0.1, bodyRadius: 0.1,
             spaceWidth: 16, spaceHeight: 9,
         });
+
+        this.begin = this.begin.bind(this);
     }
 
     registerClasses(serializer) {
@@ -22,13 +24,22 @@ export default class WiggleGameEngine extends GameEngine {
     }
 
     start() {
-        super.start();
+      super.start();
+      // setTimeout(this.begin, 3000);
+    }
+
+    begin() {
+      this.world.forEachObject((id, obj) => {
+        if (obj instanceof Wiggle) {
+          obj.speed = 0.03;
+        }
+      })
     }
 
     randPos() {
-        let x = (Math.random() - 0.5) * this.spaceWidth * 0.8;
-        let y = (Math.random() - 0.5) * this.spaceHeight * 0.8;
-        return new TwoVector(x, y);
+      let x = (Math.random() - 0.5) * this.spaceWidth;
+      let y = (Math.random() - 0.5) * this.spaceHeight;
+      return new TwoVector(x, y);
     }
 
     moveAll(stepInfo) {
@@ -63,10 +74,10 @@ export default class WiggleGameEngine extends GameEngine {
               player.direction -= 0.07;
             } else if (inputData.input === 'right') {
               player.direction += 0.07;
-            } else if (inputData.input === 'up') {
-              player.headRadius *= 1.01;
-            } else if (inputData.input === 'down') {
-              player.headRadius *= 0.99;
+            // } else if (inputData.input === 'up') {
+            //   player.headRadius *= 1.01;
+            // } else if (inputData.input === 'down') {
+            //   player.headRadius *= 0.99;
             }
         }
     }
