@@ -18,7 +18,7 @@ export default class WiggleServerEngine extends ServerEngine {
         let player = new Wiggle(this.gameEngine, null, { position: this.gameEngine.randPos() });
         player.direction = 2*Math.PI*Math.random();
         player.speed = 0.03;
-        player.headRadius = 0.05;
+        player.headRadius = 0.5;
         player.playerId = socket.playerId;
         this.gameEngine.addObjectToWorld(player);
     }

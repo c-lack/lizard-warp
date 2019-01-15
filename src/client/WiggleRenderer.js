@@ -7,6 +7,15 @@ let canvas = null;
 let game = null;
 let c = 0;
 
+var lizardImage = new Image();
+lizardImage.src = "/sprites/lizard.png";
+
+var shift = 0;
+var frameWidth = 43;
+var frameHeight = 40;
+var totalFrames = 20;
+var currentFrame = 0;
+
 export default class WiggleRenderer extends Renderer {
 
     constructor(gameEngine, clientEngine) {
@@ -53,7 +62,8 @@ export default class WiggleRenderer extends Renderer {
         let isPlayer = w.playerId === this.gameEngine.playerId;
         let x = w.position.x;
         let y = w.position.y;
-        this.drawCircle(x, y, w.headRadius, true);
+        this.drawCircle(x, y, w.headRadius, false);
+        this.drawLizard(x,y,w.headRadius,w.direction);
     }
 
     drawCircle(x, y, radius, fill) {
@@ -61,6 +71,22 @@ export default class WiggleRenderer extends Renderer {
         ctx.arc(x, y, radius, 0, 2*Math.PI);
         fill?ctx.fill():ctx.stroke();
         ctx.closePath();
+    }
+
+    drawLizard(x,y,radius,dir) {
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(dir - Math.PI/2);
+      ctx.drawImage(lizardImage, shift, 0, frameWidth, frameHeight,
+                    -0.5*radius,-0.5*radius, radius, radius);
+      ctx.restore();
+      shift += (currentFrame % 2) * (frameWidth + 1);
+      if (currentFrame == totalFrames) {
+        shift = 0;
+        currentFrame = 0;
+      }
+
+      currentFrame++;
     }
 
     drawBounds() {
