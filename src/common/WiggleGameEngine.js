@@ -63,10 +63,10 @@ export default class WiggleGameEngine extends GameEngine {
               player.direction -= 0.04;
             } else if (inputData.input === 'right') {
               player.direction += 0.04;
-            // } else if (inputData.input === 'up') {
-            //   player.headRadius *= 1.01;
-            // } else if (inputData.input === 'down') {
-            //   player.headRadius *= 0.99;
+            } else if (inputData.input === 'up') {
+              player.headRadius *= 1.01;
+            } else if (inputData.input === 'down') {
+              player.headRadius *= 0.99;
             }
         }
     }

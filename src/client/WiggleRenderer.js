@@ -10,6 +10,12 @@ let c = 0;
 var lizardImage = new Image();
 lizardImage.src = "/sprites/lizard.png";
 
+var graveImage = new Image();
+graveImage.src = "/sprites/grave.png";
+
+var tunnelImage = new Image();
+tunnelImage.src = "/sprites/tunnel.png";
+
 var shift = 0;
 var frameWidth = 150;
 var frameHeight = 150;
@@ -69,8 +75,12 @@ export default class WiggleRenderer extends Renderer {
         let x = w.position.x;
         let y = w.position.y;
         // this.drawCircle(x, y, 0.7*w.headRadius/2, false);
-        this.drawTrail(w);
-        this.drawLizard(x,y,w.headRadius,w.direction);
+        this.drawTrail(w, w.headRadius/4);
+        if (w.speed > 0) {
+          this.drawLizard(x,y,w.headRadius,w.direction);
+        } else {
+          this.drawGrave(x,y)
+        }
     }
 
     drawCircle(x, y, radius, fill) {
@@ -104,10 +114,19 @@ export default class WiggleRenderer extends Renderer {
       currentFrame++;
     }
 
-    drawTrail(w) {
-      w.trail.map(p => {
-        this.drawCircle(p.x,p.y,w.headRadius/10,true);
+    drawTrail(w,radius) {
+      w.trail.filter((_,i) => i % 3 == 0).map(p => {
+        ctx.save();
+        ctx.translate(p.x,p.y);
+        ctx.rotate(p.z + Math.PI/2);
+        ctx.drawImage(tunnelImage, 0, 0, 150, 150,
+                      -0.5*radius,-0.5*radius, radius, radius);
+        ctx.restore();
       })
+    }
+
+    drawGrave(x,y) {
+      ctx.drawImage(graveImage, 0, 0, 150, 150, x-0.4, y-0.4, 0.8, 0.8);
     }
 
     drawBounds() {

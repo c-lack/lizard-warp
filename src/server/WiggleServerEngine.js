@@ -42,9 +42,10 @@ export default class WiggleServerEngine extends ServerEngine {
                 if (w === w2)
                     continue;
 
-                // tail
+                // trail
                 w2.trail.map((p) => {
-                  let distance = p.clone().subtract(w.position);
+                  let pos = new TwoVector(p.x, p.y);
+                  let distance = pos.subtract(w.position);
                   if (distance.length() < 0.35*w.headRadius + w2.headRadius/10) {
                     this.killWiggle(w);
                   }
@@ -58,7 +59,7 @@ export default class WiggleServerEngine extends ServerEngine {
                 }
             }
 
-            // own tail
+            // own trail
             w.trail.map((p) => {
               if (Math.abs(w.direction - p.z) < 0.5) {
                 return
