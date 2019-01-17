@@ -1,8 +1,8 @@
 import GameEngine from 'lance/GameEngine';
 import SimplePhysicsEngine from 'lance/physics/SimplePhysicsEngine';
 import TwoVector from 'lance/serialize/TwoVector';
-import ThreeVector from 'lance/serialize/ThreeVector';
 import Wiggle from './Wiggle';
+import Trails from './Trails';
 
 export default class WiggleGameEngine extends GameEngine {
 
@@ -20,6 +20,7 @@ export default class WiggleGameEngine extends GameEngine {
 
     registerClasses(serializer) {
         serializer.registerClass(Wiggle);
+        serializer.registerClass(Trails);
     }
 
     start() {
@@ -37,13 +38,13 @@ export default class WiggleGameEngine extends GameEngine {
         if (stepInfo.isReenact)
             return;
 
+        let trails = this.world.queryObject({ instanceType: Trails });
+
         this.world.forEachObject((id, obj) => {
             if (obj instanceof Wiggle) {
 
-                // save current pos
-                if (obj.speed > 0) {
-                  obj.trail.push(new ThreeVector(obj.position.x, obj.position.y, obj.direction))
-                }
+                // add to trail
+                trails.add(obj.position.clone());
 
                 let move = new TwoVector(Math.cos(obj.direction), Math.sin(obj.direction));
                 move.multiplyScalar(obj.speed);
@@ -63,10 +64,10 @@ export default class WiggleGameEngine extends GameEngine {
               player.direction -= 0.04;
             } else if (inputData.input === 'right') {
               player.direction += 0.04;
-            } else if (inputData.input === 'up') {
-              player.headRadius *= 1.01;
-            } else if (inputData.input === 'down') {
-              player.headRadius *= 0.99;
+            // } else if (inputData.input === 'up') {
+            //   player.headRadius *= 1.01;
+            // } else if (inputData.input === 'down') {
+            //   player.headRadius *= 0.99;
             }
         }
     }

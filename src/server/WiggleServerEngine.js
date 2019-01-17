@@ -1,6 +1,7 @@
 import ServerEngine from 'lance/ServerEngine';
 import TwoVector from 'lance/serialize/TwoVector';
 import Wiggle from '../common/Wiggle';
+import Trails from '../common/Trails';
 
 export default class WiggleServerEngine extends ServerEngine {
 
@@ -11,22 +12,35 @@ export default class WiggleServerEngine extends ServerEngine {
 
     start() {
       super.start();
+
+      let trails = new Trails(this.gameEngine, null, {});
+      this.gameEngine.addObjectToWorld(trails);
+    }
+
+    startSpeed(playerId) {
+        let playerWiggle = this.gameEngine.world.queryObject({ playerId });
+        if (playerWiggle) {
+            playerWiggle.speed = 0.02;
+        }
     }
 
     onPlayerConnected(socket) {
         super.onPlayerConnected(socket);
         let player = new Wiggle(this.gameEngine, null, { position: this.gameEngine.randPos().multiplyScalar(0.7) });
         player.direction = 2*Math.PI*Math.random();
-        player.speed = 0.02;
+        player.speed = 0.0001;
         player.headRadius = 0.5;
         player.playerId = socket.playerId;
         this.gameEngine.addObjectToWorld(player);
+        setTimeout(() => {this.startSpeed(socket.playerId)}, 20);
     }
 
     onPlayerDisconnected(socketId, playerId) {
         super.onPlayerDisconnected(socketId, playerId);
         let playerWiggle = this.gameEngine.world.queryObject({ playerId });
-        if (playerWiggle) this.gameEngine.removeObjectFromWorld(playerWiggle.id);
+        if (playerWiggle) {
+            this.gameEngine.removeObjectFromWorld(playerWiggle.id);
+        }
     }
 
     killWiggle(w) {
@@ -42,15 +56,6 @@ export default class WiggleServerEngine extends ServerEngine {
                 if (w === w2)
                     continue;
 
-                // trail
-                w2.trail.filter((_,i) => i % 3 == 0).map((p) => {
-                  let pos = new TwoVector(p.x, p.y);
-                  let distance = pos.subtract(w.position);
-                  if (distance.length() < 0.35*w.headRadius + w2.headRadius/10) {
-                    this.killWiggle(w);
-                  }
-                })
-
                 // Head to head
                 let distance = w2.position.clone().subtract(w.position);
                 if (distance.length() < 0.35*w.headRadius + 0.35*w2.headRadius) {
@@ -58,18 +63,6 @@ export default class WiggleServerEngine extends ServerEngine {
                   this.killWiggle(w2);
                 }
             }
-
-            // own trail
-            w.trail.filter((_,i) => i % 3 == 0).map((p) => {
-              if (Math.abs(w.direction - p.z) < 0.5) {
-                return
-              }
-              let pos = new TwoVector(p.x, p.y)
-              let distance = pos.subtract(w.position);
-              if (distance.length() < 0.35*w.headRadius + w.headRadius/10) {
-                this.killWiggle(w);
-              }
-            })
 
             // wall
             var x = w.position.x;

@@ -1,6 +1,7 @@
 import Renderer from 'lance/render/Renderer';
 import TwoVector from 'lance/serialize/TwoVector';
 import Wiggle from '../common/Wiggle';
+import Trails from '../common/Trails';
 
 let ctx = null;
 let canvas = null;
@@ -54,6 +55,12 @@ export default class WiggleRenderer extends Renderer {
         ctx.translate(game.w/2, game.h/2); // Translate to the center
         ctx.scale(this.clientEngine.zoom, this.clientEngine.zoom);  // Zoom in and flip y axis
 
+        // Draw trail
+        let trails = game.world.queryObject({instanceType: Trails});
+        if (trails) {
+                this.drawTrails(trails);
+        }
+
         // Draw all lizards
         game.world.forEachObject((id, obj) => {
             if (obj instanceof Wiggle) {
@@ -68,6 +75,12 @@ export default class WiggleRenderer extends Renderer {
 
     }
 
+    drawTrails(trails) {
+        trails.trails.map(pos => {
+                this.drawCircle(pos.x, pos.y, 0.1, true);
+        })
+    }
+
     drawWiggle(w) {
 
         // draw head and body
@@ -75,7 +88,6 @@ export default class WiggleRenderer extends Renderer {
         let x = w.position.x;
         let y = w.position.y;
         // this.drawCircle(x, y, 0.7*w.headRadius/2, false);
-        this.drawTrail(w, w.headRadius/4);
         if (w.speed > 0) {
           this.drawLizard(x,y,w.headRadius,w.direction);
         } else {
@@ -102,27 +114,16 @@ export default class WiggleRenderer extends Renderer {
       // TODO: Change 16 to be dependent on speed
       if (frameCount < 16) {
         frameCount ++;
-        return
+        return;
       }
 
       frameCount = 0;
-      shift += (frameWidth + 1);
+      shift += frameWidth;
       if (currentFrame == totalFrames) {
         shift = 0;
         currentFrame = 0;
       }
       currentFrame++;
-    }
-
-    drawTrail(w,radius) {
-      w.trail.filter((_,i) => i % 3 == 0).map(p => {
-        ctx.save();
-        ctx.translate(p.x,p.y);
-        ctx.rotate(p.z + Math.PI/2);
-        ctx.drawImage(tunnelImage, 0, 0, 150, 150,
-                      -0.5*radius,-0.5*radius, radius, radius);
-        ctx.restore();
-      })
     }
 
     drawGrave(x,y) {

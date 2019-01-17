@@ -7,18 +7,13 @@ export default class Wiggle extends DynamicObject {
         return Object.assign({
             direction: { type: BaseTypes.TYPES.FLOAT32 },
             speed: { type: BaseTypes.TYPES.FLOAT32 },
-            headRadius: { type: BaseTypes.TYPES.FLOAT32 },
-            trail: {
-              type: BaseTypes.TYPES.LIST,
-              itemType: BaseTypes.TYPES.CLASSINSTANCE
-            }
+            headRadius: { type: BaseTypes.TYPES.FLOAT32 }
         }, super.netScheme);
     }
 
     constructor(gameEngine, options, props) {
         super(gameEngine, options, props);
         this.class = Wiggle;
-        this.trail = [];
     }
 
     syncTo(other) {
@@ -26,6 +21,5 @@ export default class Wiggle extends DynamicObject {
         this.direction = other.direction;
         this.speed = other.speed;
         this.headRadius = other.headRadius;
-        this.trail = other.trail;
     }
 }
