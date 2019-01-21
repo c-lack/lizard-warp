@@ -1,2 +1,5 @@
-node_modules
-dist/bundle.js
+dist/
+node_modules/
+npm-debug.log
+.DS_Store
+__pycache__
