@@ -5,6 +5,9 @@ var io = require('socket.io')(server);
 
 const PORT = 3000;
 
+var ServerEngine = require('./ServerEngine.js');
+var serverengine = new ServerEngine();
+
 app.use(express.static(__dirname +'./../../')); //serves the index.html
 app.get('/', function(req, res,next) {
     res.sendFile(__dirname + './../../index.html');
@@ -17,7 +20,10 @@ server.listen(PORT,() => console.log('listening on port', PORT));
 io.on('connection', (client) => {
   console.log('user connected');
 
+  serverengine.add_client(client);
+
   client.on('disconnect', () => {
     console.log('user disconnected');
-  })
+    serverengine.remove_client(client);
+  });
 });

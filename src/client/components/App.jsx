@@ -2,9 +2,19 @@ import React, { Component } from 'react';
 import openSocket from 'socket.io-client';
 const socket = openSocket('http://localhost:3000');
 
+import UserName from './Username.jsx';
+
 class App extends Component {
+  submitUserName(username) {
+    socket.emit('username',username);
+  }
+
   render() {
-    return <h1>Lizard warp</h1>;
+    return (
+      <div className="app">
+        <UserName submit={this.submitUserName.bind(this)}/>
+      </div>
+    )
   }
 }
 
