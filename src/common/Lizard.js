@@ -1,9 +1,13 @@
 // Lizard.js
 
-module.exports = class Lizard {
-  constructor(pos, dir, health) {
-    this.pos = pos;
-    this.dir = dir;
-    this.health = health;
+class Lizard {
+  constructor(props) {
+    this.pos = props.pos;
+    this.dir = props.dir;
+    this.health = props.health;
+    this.color = props.color;
+    this.speed = props.speed;
   }
 }
+
+exports.Lizard = Lizard;

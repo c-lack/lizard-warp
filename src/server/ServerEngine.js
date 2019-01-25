@@ -1,10 +1,14 @@
 // ServerEngine.js
+var GameEngine = require('../common/GameEngine.js').GameEngine;
 
 module.exports = class ServerEngine {
   constructor() {
     this.clients = [];
     this.queue = [];
     this.countdown_timer = null;
+    this.gameengine = null;
+    this.game_timer = null;
+    this.broadcast_timer = null;
   }
 
   add_client(client) {
@@ -69,11 +73,12 @@ module.exports = class ServerEngine {
   }
 
   start_countdown() {
-    var countdown_val = 5;
+    var countdown_val = 1; // TODO change back to 5
     this.countdown_timer = setInterval(() => {
       this.broadcast_countdown(countdown_val--);
       if (countdown_val < 0) {
         clearInterval(this.countdown_timer);
+        this.start_game();
       }
     },1000);
   }
@@ -95,4 +100,31 @@ module.exports = class ServerEngine {
       c.client.emit('cancel_countdown');
     });
   }
+
+  broadcast_start_game() {
+    this.queue.forEach(c => {
+      c.client.emit('start_game');
+    });
+  }
+
+  start_game() {
+    this.gameengine = new GameEngine(this.queue);
+    this.run_game();
+    this.broadcast_start_game();
+  }
+
+  run_game() {
+    this.game_timer = setInterval(() => {
+      this.gameengine.step();
+    },1000);
+    this.broadcast_timer = setInterval(() => {
+      this.queue.forEach(p => {
+        p.client.emit('game_state', JSON.stringify({
+          lizards: this.gameengine.players.map(p => p.lizard),
+          walls_temp: this.gameengine.walls_temp,
+        }));
+      });
+    },3000);
+  }
+
 }
