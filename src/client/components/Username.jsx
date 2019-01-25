@@ -23,6 +23,7 @@ export default class UserName extends Component {
       <div className="username">
         <input
           type="text"
+          placeholder={'Enter a username'}
           value={this.state.username}
           onChange={this.handleChange.bind(this)}
         />
