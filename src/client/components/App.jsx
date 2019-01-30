@@ -6,6 +6,7 @@ import UserName from './Username.jsx';
 import Queue from './Queue.jsx';
 import StartGame from './StartGame.jsx';
 import Countdown from './Countdown.jsx';
+import GameRenderer from './GameRenderer.jsx';
 
 var ClientEngine = require('../ClientEngine.js').ClientEngine;
 
@@ -18,8 +19,9 @@ class App extends Component {
       game_btn: false,
       countdown: false,
       countdown_val: 5,
+      game: false,
+      clientengine: null,
     };
-    this.clientengine = null;
   }
 
   componentDidMount() {
@@ -57,9 +59,6 @@ class App extends Component {
     socket.on('start_game', () => {
       this.startGame();
     });
-    socket.on('game_state', (json) => {
-      this.updateState(JSON.parse(json));
-    });
   }
 
   submitUserName(username) {
@@ -71,8 +70,8 @@ class App extends Component {
   }
 
   queueUpdate(str) {
-    var queue = JSON.parse(str);
-    this.setState({queue});
+    let queue = JSON.parse(str);
+    this.setState({queue: queue});
   }
 
   startCountdown() {
@@ -87,13 +86,9 @@ class App extends Component {
     this.setState({
       game_btn: false,
       countdown: false,
+      game: true,
+      clientengine: new ClientEngine(socket),
     });
-    this.clientengine = new ClientEngine();
-  }
-
-  updateState(state) {
-    console.log('update');
-    this.clientengine.update_state(state);
   }
 
   render() {
@@ -112,6 +107,10 @@ class App extends Component {
         }
         {this.state.countdown
           ? <Countdown val={this.state.countdown_val} />
+          : <div></div>
+        }
+        {this.state.game
+          ? <GameRenderer engine={this.state.clientengine} />
           : <div></div>
         }
       </div>

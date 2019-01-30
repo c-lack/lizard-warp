@@ -1,6 +1,9 @@
 // ServerEngine.js
 var GameEngine = require('../common/GameEngine.js').GameEngine;
 
+var random_color = require('../common/utils.js').random_color;
+var random_pos = require('../common/utils.js').random_pos;
+
 module.exports = class ServerEngine {
   constructor() {
     this.clients = [];
@@ -44,6 +47,15 @@ module.exports = class ServerEngine {
     client.on('cancel_countdown', () => {
       this.cancel_countdown();
     })
+    client.on('turn_left', () => {
+      this.turn(client,-1);
+    });
+    client.on('turn_right', () => {
+      this.turn(client,1);
+    });
+    client.on('turn_straight', () => {
+      this.turn(client,0);
+    });
   }
 
   register_username(client, username) {
@@ -57,6 +69,7 @@ module.exports = class ServerEngine {
     }
     else {
       this.get_client(client).username=username;
+      this.get_client(client).color = random_color();
       this.queue.push(this.get_client(client));
       this.broadcast_queue();
       client.emit('username_success');
@@ -67,7 +80,9 @@ module.exports = class ServerEngine {
   broadcast_queue() {
     this.clients.forEach(c => {
       c.client.emit('queue_update', JSON.stringify(
-        this.queue.map(c => c.username)
+        this.queue.map(c => {
+          return {username: c.username, color: c.color}
+        })
       ));
     });
   }
@@ -108,23 +123,51 @@ module.exports = class ServerEngine {
   }
 
   start_game() {
-    this.gameengine = new GameEngine(this.queue);
+    this.gameengine = new GameEngine();
+    this.initialise_game();
     this.run_game();
-    this.broadcast_start_game();
+  }
+
+  initialise_game() {
+    this.queue.forEach(p => {
+      this.gameengine.add_player({
+        id: p.client.id,
+        username: p.username,
+        color: p.color,
+        pos: random_pos(),
+        dir: Math.random()*Math.PI,
+        health: 1,
+        speed: 0.001,
+        turn_speed: 0.02,
+        turn: 0
+      })
+    })
+  }
+
+  turn(c,dir) {
+    this.gameengine.players.forEach(p => {
+      if (p.id === c.id) {
+        p.turn = dir;
+      }
+    });
   }
 
   run_game() {
+    this.broadcast_start_game();
     this.game_timer = setInterval(() => {
       this.gameengine.step();
-    },1000);
+    },17);
     this.broadcast_timer = setInterval(() => {
       this.queue.forEach(p => {
         p.client.emit('game_state', JSON.stringify({
-          lizards: this.gameengine.players.map(p => p.lizard),
+          players: this.gameengine.players,
           walls_temp: this.gameengine.walls_temp,
         }));
       });
-    },3000);
+      this.gameengine.walls_temp = [];
+      this.gameengine.walls_fixed = this.gameengine
+        .walls_fixed.concat(this.gameengine.walls_temp);
+    },102);
   }
 
 }

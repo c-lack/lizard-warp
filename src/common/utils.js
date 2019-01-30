@@ -1,8 +1,8 @@
 var colors = require('../common/colors.json');
 var Victor = require('victor');
 
-const height = 10;
-const width = 10;
+const height = 1;
+const width = 1;
 
 exports.random_color = () => {
   var num_colors = Object.keys(colors).length;

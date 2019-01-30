@@ -1,32 +1,29 @@
 // GameEngine.js
-var Lizard = require('../common/Lizard.js').Lizard;
+let Lizard = require('../common/Lizard.js').Lizard;
 
-var random_color = require('../common/utils.js').random_color;
-var random_pos = require('../common/utils.js').random_pos;
+let Victor = require('victor');
 
 class GameEngine {
-  constructor(players) {
-    this.players = players;
+  constructor() {
+    this.players = [];
     this.walls_temp = [];
     this.walls_fixed = [];
-
-    this.assign_lizards();
   }
 
-  assign_lizards() {
-    this.players.forEach(p => {
-      p.lizard = new Lizard({
-        pos: random_pos(),
-        dir: Math.random()*Math.PI,
-        health: 1,
-        color: random_color(),
-        speed: 0,
-      });
-    });
+  add_player(props) {
+    this.players.push(new Lizard(props));
   }
 
   step() {
-
+    this.players.forEach(p => {
+      let move = new Victor(
+        Math.cos(p.dir),
+        Math.sin(p.dir),
+      );
+      let scale = new Victor(p.speed,p.speed);
+      p.pos.add(move.multiply(scale));
+      p.dir += p.turn*p.turn_speed;
+    })
   }
 
 }

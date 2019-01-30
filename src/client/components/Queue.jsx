@@ -5,8 +5,8 @@ export default class Queue extends Component {
     return (
       <div className="queue">
         <ul>
-          {this.props.queue.map( (username) => (
-            <li key={username}>{username}</li>
+          {this.props.queue.map( (p) => (
+            <li key={p.username} style={{color: p.color.code}}>{p.username}</li>
           ))}
         </ul>
       </div>
