@@ -57,10 +57,14 @@ class ClientEngine {
   }
 
   run_game() {
-    setInterval(() => {
+    this.game_timer = setInterval(() => {
       this.game.step()
       this.check_deaths();
     },17);
+  }
+
+  end_game() {
+    clearInterval(this.game_timer);
   }
 
   check_deaths() {

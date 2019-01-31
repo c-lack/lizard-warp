@@ -59,6 +59,9 @@ class App extends Component {
     socket.on('start_game', () => {
       this.startGame();
     });
+    socket.on('end_game', () => {
+      this.endGame();
+    });
   }
 
   submitUserName(username) {
@@ -89,6 +92,22 @@ class App extends Component {
       game: true,
       clientengine: new ClientEngine(socket),
     });
+  }
+
+  endGame() {
+    let _this = this;
+    setTimeout(() => {
+      _this.state.clientengine.end_game();
+      setTimeout(() => {
+        _this.setState({
+          game_btn: true,
+          game: false,
+        },() => {
+          document.getElementsByTagName("canvas")[0].outerHTML = "";
+          document.getElementsByTagName("canvas")[0].outerHTML = "";
+        });
+      },1000);
+    },2000);
   }
 
   render() {

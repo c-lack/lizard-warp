@@ -6,7 +6,6 @@ let random_pos = require('../common/utils.js').random_pos;
 
 module.exports = class ServerEngine {
   constructor() {
-    this.clients = [];
     this.queue = [];
     this.countdown_timer = null;
     this.gameengine = null;
@@ -16,17 +15,15 @@ module.exports = class ServerEngine {
 
   add_client(client) {
     this.register_events(client);
-    this.clients.push({
+    this.queue.push({
       client: client,
       username: '',
+      color: random_color(),
     });
     this.broadcast_queue();
   }
 
   remove_client(client) {
-    this.clients = this.clients.filter(c => {
-      return c.client.id !== client.id;
-    });
     this.queue = this.queue.filter(c => {
       return c.client.id !== client.id;
     });
@@ -34,7 +31,7 @@ module.exports = class ServerEngine {
   }
 
   get_client(client) {
-    return this.clients.filter(c => c.client.id === client.id)[0];
+    return this.queue.filter(c => c.client.id === client.id)[0];
   }
 
   register_events(client) {
@@ -66,14 +63,13 @@ module.exports = class ServerEngine {
       client.emit('has_name');
       return;
     }
-    else if (this.clients.map(c => c.username).includes(username)) {
+    else if (this.queue.map(c => c.username).includes(username)) {
       client.emit('name_exists');
       return;
     }
     else {
       this.get_client(client).username=username;
       this.get_client(client).color = random_color();
-      this.queue.push(this.get_client(client));
       this.broadcast_queue();
       client.emit('username_success');
       return;
@@ -81,7 +77,7 @@ module.exports = class ServerEngine {
   }
 
   broadcast_queue() {
-    this.clients.forEach(c => {
+    this.queue.forEach(c => {
       c.client.emit('queue_update', JSON.stringify(
         this.queue.map(c => {
           return {username: c.username, color: c.color}
@@ -186,6 +182,40 @@ module.exports = class ServerEngine {
       this.gameengine.walls_fixed = this.gameengine
         .walls_fixed.concat(this.gameengine.walls_temp);
     },68);
+    this.end_game_timer = setInterval(() => {
+      this.check_end_game();
+    },1000);
+  }
+
+  check_end_game() {
+    let player_count = 0;
+    this.gameengine.players.forEach(p => {
+      if (p.health) {
+        player_count++
+      }
+    });
+    if (player_count < 2) {
+      this.end_game();
+    }
+  }
+
+  end_game() {
+    this.broadcast_end_game();
+    clearInterval(this.game_timer);
+    clearInterval(this.trail_timer);
+    clearInterval(this.broadcast_timer);
+    clearInterval(this.end_game_timer);
+    this.reset()
+  }
+
+  broadcast_end_game() {
+    this.queue.forEach(c => {
+      c.client.emit('end_game');
+    })
+  }
+
+  reset() {
+
   }
 
   kill_lizard(c) {

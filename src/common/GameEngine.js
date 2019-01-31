@@ -33,6 +33,10 @@ class GameEngine {
       );
       let scale = new Victor(p.speed,p.speed);
       p.pos.add(move.multiply(scale));
+      p.pos.x = Math.max(p.pos.x,-0.5);
+      p.pos.x = Math.min(p.pos.x,0.5);
+      p.pos.y = Math.max(p.pos.y,-0.5);
+      p.pos.y = Math.min(p.pos.y,0.5);
       p.dir += p.turn*p.turn_speed;
     })
   }
