@@ -1,8 +1,8 @@
 // ServerEngine.js
-var GameEngine = require('../common/GameEngine.js').GameEngine;
+let GameEngine = require('../common/GameEngine.js').GameEngine;
 
-var random_color = require('../common/utils.js').random_color;
-var random_pos = require('../common/utils.js').random_pos;
+let random_color = require('../common/utils.js').random_color;
+let random_pos = require('../common/utils.js').random_pos;
 
 module.exports = class ServerEngine {
   constructor() {
@@ -55,6 +55,9 @@ module.exports = class ServerEngine {
     });
     client.on('turn_straight', () => {
       this.turn(client,0);
+    });
+    client.on('death', () => {
+      this.kill_lizard(client);
     });
   }
 
@@ -136,12 +139,13 @@ module.exports = class ServerEngine {
         color: p.color,
         pos: random_pos(),
         dir: Math.random()*Math.PI,
-        health: 1,
-        speed: 0.001,
-        turn_speed: 0.02,
-        turn: 0
-      })
-    })
+        health: true,
+        speed: 0.002,
+        turn_speed: 0.04,
+        turn: 0,
+        trail: false,
+      });
+    });
   }
 
   turn(c,dir) {
@@ -167,7 +171,15 @@ module.exports = class ServerEngine {
       this.gameengine.walls_temp = [];
       this.gameengine.walls_fixed = this.gameengine
         .walls_fixed.concat(this.gameengine.walls_temp);
-    },102);
+    },68);
+  }
+
+  kill_lizard(c) {
+    this.gameengine.players.forEach(p => {
+      if (p.id === c.id) {
+        p.kill();
+      }
+    });
   }
 
 }

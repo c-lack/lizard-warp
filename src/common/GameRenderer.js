@@ -10,7 +10,7 @@ class GameRenderer {
     canvas = document.createElement('canvas');
     canvas.width = Math.min(window.innerWidth,window.innerHeight);
     canvas.height = Math.min(window.innerWidth,window.innerHeight);
-    document.body.insertBefore(canvas, document.getElementById('bot'));
+    document.body.insertBefore(canvas, document.getElementById('root'));
     ctx = canvas.getContext('2d');
     ctx.fillStyle = 'white';
     ctx.strokeStyle = 'white';
@@ -19,7 +19,7 @@ class GameRenderer {
 
   draw() {
     // Clear the canvas
-    ctx.clearRect(0,0,canvas.width, canvas.height);
+    // ctx.clearRect(0,0,canvas.width, canvas.height);
 
     // Translate to center
     ctx.save();
@@ -28,16 +28,13 @@ class GameRenderer {
 
     // Draw all lizards
     game.players.forEach(l => {
+      if (this.get_color(l.pos.x,l.pos.y)) {
+        game.kill_lizard(l);
+      }
+      if (l.health && l.trail) {
         this.draw_lizard(l);
+      }
     });
-
-    // Draw all walls
-    // state.walls_temp.forEach(w => {
-    //     this.draw_wall(w);
-    // });
-    // state.walls_fixed.forEach(w => {
-    //     this.draw_wall(w);
-    // });
 
     // draw bounds
     this.draw_bounds();
@@ -47,15 +44,20 @@ class GameRenderer {
   }
 
   draw_lizard(l) {
+    ctx.save();
+    ctx.translate(l.pos.x,l.pos.y);
+    ctx.rotate(l.dir + Math.PI/2);
     ctx.beginPath();
-    ctx.arc(l.pos.x,l.pos.y,0.01,0,2*Math.PI);
+    ctx.arc(0,0,0.005,0,Math.PI);
+    ctx.fillStyle = l.color.code;
     ctx.fill();
     ctx.closePath();
+    ctx.restore();
   }
 
   draw_wall(w) {
     ctx.beginPath();
-    ctx.arc(w.pos.x,w.pos.y,5,0,2*Math.PI);
+    ctx.arc(w.pos.x,w.pos.y,0.5,0,2*Math.PI);
     ctx.fill();
     ctx.closePath();
   }
@@ -69,6 +71,19 @@ class GameRenderer {
     ctx.lineTo(-0.5, -0.5);
     ctx.stroke();
     ctx.closePath();
+  }
+
+  get_color(x,y) {
+    let X = canvas.width*(x+0.5);
+    let Y = canvas.height*(y+0.5);
+    let dat = ctx.getImageData(X-2,Y-2,5,5).data;
+    let flag = true;
+    dat.forEach(pix => {
+      if (pix === 0) {
+        flag = false;
+      }
+    });
+    return flag;
   }
 }
 

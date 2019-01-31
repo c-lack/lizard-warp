@@ -8,6 +8,12 @@ class GameEngine {
     this.players = [];
     this.walls_temp = [];
     this.walls_fixed = [];
+    let _this = this;
+    setTimeout(() => {
+      _this.players.forEach(p => {
+        p.trail = true;
+      })
+    },1000);
   }
 
   add_player(props) {
@@ -24,6 +30,14 @@ class GameEngine {
       p.pos.add(move.multiply(scale));
       p.dir += p.turn*p.turn_speed;
     })
+  }
+
+  kill_lizard(l) {
+    this.players.forEach(p => {
+      if (p.id === l.id) {
+        p.kill();
+      }
+    });
   }
 
 }
