@@ -9,6 +9,12 @@ body {
   color: $purple;
 }
 
+ul {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
 li {
   list-style: none;
 }

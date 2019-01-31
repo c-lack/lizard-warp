@@ -19,6 +19,9 @@ class Lizard {
   sync_to(props) {
     this.pos = new Victor(props.pos.x, props.pos.y);
     this.dir = props.dir;
+    this.health = props.health;
+    this.speed = props.speed;
+    this.trail = props.trail;
   }
 
   kill() {

@@ -12,7 +12,12 @@ class GameEngine {
     setTimeout(() => {
       _this.players.forEach(p => {
         p.trail = true;
-      })
+      });
+    },3000);
+    setTimeout(() => {
+      _this.players.forEach(p => {
+        p.speed = 0.002;
+      });
     },1000);
   }
 

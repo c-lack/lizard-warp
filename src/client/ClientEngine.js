@@ -67,7 +67,7 @@ class ClientEngine {
     if (this.alive) {
       this.game.players.forEach(p => {
         if (p.id === this.socket.id) {
-          if (p.health === 0) {
+          if (!p.health) {
             this.socket.emit('death');
             this.alive = false;
           }

@@ -140,7 +140,7 @@ module.exports = class ServerEngine {
         pos: random_pos(),
         dir: Math.random()*Math.PI,
         health: true,
-        speed: 0.002,
+        speed: 0,
         turn_speed: 0.04,
         turn: 0,
         trail: false,
@@ -156,11 +156,25 @@ module.exports = class ServerEngine {
     });
   }
 
+  break_trail() {
+    let rand_l = this.gameengine.players[Math.floor(
+      Math.random()*this.gameengine.players.length)];
+    rand_l.trail = false;
+    setTimeout(() => {
+      rand_l.trail = true;
+    },300);
+  }
+
   run_game() {
     this.broadcast_start_game();
     this.game_timer = setInterval(() => {
       this.gameengine.step();
     },17);
+    this.trail_timer = setInterval(() => {
+      if (Math.random() < this.gameengine.players.length*0.1) {
+        this.break_trail();
+      }
+    },200);
     this.broadcast_timer = setInterval(() => {
       this.queue.forEach(p => {
         p.client.emit('game_state', JSON.stringify({
