@@ -11,7 +11,7 @@ export default class Queue extends Component {
                 <li
                   key={p.username}
                   style={{color: p.color.code}}
-                >{p.username}</li>
+                >{''+p.username+', '+p.points}</li>
               )
             }
           })}

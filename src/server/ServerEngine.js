@@ -4,6 +4,8 @@ let GameEngine = require('../common/GameEngine.js').GameEngine;
 let random_color = require('../common/utils.js').random_color;
 let random_pos = require('../common/utils.js').random_pos;
 
+let game_points = 0;
+
 module.exports = class ServerEngine {
   constructor() {
     this.queue = [];
@@ -21,6 +23,7 @@ module.exports = class ServerEngine {
       client: client,
       username: '',
       color: random_color(),
+      points: 0,
     });
     this.broadcast_queue();
     if (this.game_timer) {
@@ -85,14 +88,14 @@ module.exports = class ServerEngine {
     this.queue.forEach(c => {
       c.client.emit('queue_update', JSON.stringify(
         this.queue.map(c => {
-          return {username: c.username, color: c.color}
+          return {username: c.username, color: c.color, points: c.points}
         })
       ));
     });
   }
 
   start_countdown() {
-    var countdown_val = 1; // TODO change back to 5
+    let countdown_val = 1; // TODO change back to 5
     this.countdown_timer = setInterval(() => {
       this.broadcast_countdown(countdown_val--);
       if (countdown_val < 0) {
@@ -133,6 +136,7 @@ module.exports = class ServerEngine {
   }
 
   initialise_game() {
+    game_points = 0;
     this.queue.forEach(p => {
       this.gameengine.add_player({
         id: p.client.id,
@@ -205,6 +209,17 @@ module.exports = class ServerEngine {
   }
 
   end_game() {
+    this.gameengine.players.forEach(p => {
+      if (p.health) {
+        this.queue.forEach(c => {
+          if (p.id === c.client.id) {
+            c.points += this.gameengine.players.length - 1;
+            this.broadcast_queue();
+            game_points = 0;
+          }
+        });
+      }
+    });
     this.broadcast_end_game();
     clearInterval(this.game_timer);
     clearInterval(this.trail_timer);
@@ -214,7 +229,6 @@ module.exports = class ServerEngine {
     this.trail_timer = false;
     this.broadcast_timer = false;
     this.end_game_timer = false;
-    this.reset()
   }
 
   broadcast_end_game() {
@@ -223,14 +237,18 @@ module.exports = class ServerEngine {
     })
   }
 
-  reset() {
-
-  }
-
   kill_lizard(c) {
     this.gameengine.players.forEach(p => {
       if (p.id === c.id) {
         p.kill();
+      }
+    });
+    this.queue.forEach(p => {
+      if (p.client.id === c.id) {
+        p.points += game_points;
+        this.broadcast_queue();
+        game_points++;
+        console.log(game_points);
       }
     });
   }
