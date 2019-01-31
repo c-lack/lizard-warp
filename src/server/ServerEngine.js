@@ -9,8 +9,10 @@ module.exports = class ServerEngine {
     this.queue = [];
     this.countdown_timer = null;
     this.gameengine = null;
-    this.game_timer = null;
-    this.broadcast_timer = null;
+    this.game_timer = false;
+    this.trail_timer = false;
+    this.broadcast_timer = false;
+    this.end_game_timer = false;
   }
 
   add_client(client) {
@@ -21,6 +23,9 @@ module.exports = class ServerEngine {
       color: random_color(),
     });
     this.broadcast_queue();
+    if (this.game_timer) {
+      client.emit('game_running');
+    }
   }
 
   remove_client(client) {
@@ -205,6 +210,10 @@ module.exports = class ServerEngine {
     clearInterval(this.trail_timer);
     clearInterval(this.broadcast_timer);
     clearInterval(this.end_game_timer);
+    this.game_timer = false;
+    this.trail_timer = false;
+    this.broadcast_timer = false;
+    this.end_game_timer = false;
     this.reset()
   }
 

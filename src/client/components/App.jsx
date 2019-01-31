@@ -62,6 +62,11 @@ class App extends Component {
     socket.on('end_game', () => {
       this.endGame();
     });
+    socket.on('game_running', () => {
+      this.setState({
+        game_btn: false
+      });
+    });
   }
 
   submitUserName(username) {
