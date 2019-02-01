@@ -17,7 +17,7 @@
   "game_trail_break_rate": 200,
   "trail_break_chance": 0.1,
   "game_broadcast_rate": 68,
-  "game_end_check_rate": 1000,
+  "game_end_check_rate": 100,
   "board_width": 1,
   "board_height": 1
 }

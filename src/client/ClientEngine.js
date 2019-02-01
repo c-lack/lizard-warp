@@ -141,10 +141,6 @@ class ClientEngine {
     });
     this.socket.emit('turn_straight')
   }
-
-  kill_lizard() {
-
-  }
 }
 
 exports.ClientEngine = ClientEngine;

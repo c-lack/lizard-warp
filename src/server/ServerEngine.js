@@ -6,6 +6,12 @@ let config = require('../common/config.json');
 let random_color = require('../common/utils.js').random_color;
 let random_pos = require('../common/utils.js').random_pos;
 
+let GoogleSpreadsheet = require('google-spreadsheet');
+let creds = require('./secret.json');
+
+// Create a document object using the ID of the spreadsheet - obtained from its URL.
+let doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
+
 let game_points = 0;
 
 module.exports = class ServerEngine {
@@ -18,6 +24,7 @@ module.exports = class ServerEngine {
     this.broadcast_timer = false;
     this.end_game_timer = false;
     this.countdown_timer = false;
+    this.results = [];
   }
 
   add_client(client) {
@@ -226,6 +233,11 @@ module.exports = class ServerEngine {
         this.queue.forEach(c => {
           if (p.id === c.client.id) {
             c.points += this.gameengine.players.length - 1;
+            if (!this.results.includes(c.username)) {
+              this.results.push(c.username)
+            }
+            this.store_results(this.results);
+            this.results = [];
             this.broadcast_queue();
             game_points = 0;
           }
@@ -258,10 +270,28 @@ module.exports = class ServerEngine {
     this.queue.forEach(p => {
       if (p.client.id === c.id) {
         p.points += game_points;
+        if (!this.results.includes(p.username)) {
+          this.results.push(p.username)
+        }
         this.broadcast_queue();
         game_points++;
       }
     });
   }
 
+  store_results(res) {
+    let obj = new Object();
+    for (let i = 0; i < res.length; i++) {
+      let key = (i+10).toString(36);
+      obj[key]=res[i];
+    }
+
+    doc.useServiceAccountAuth(creds, (err) => {
+      doc.addRow(1, obj, (err) => {
+        if (err) {
+          throw err;
+        }
+      });
+    });
+  }
 }
