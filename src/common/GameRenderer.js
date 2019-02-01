@@ -1,4 +1,5 @@
 // GameRenderer.js
+var Victor = require('victor');
 
 let ctx_trail = null;
 let canvas_trail = null;
@@ -36,9 +37,6 @@ class GameRenderer {
     canvas_lizard.height = Math.min(window.innerWidth,window.innerHeight);
     document.body.insertBefore(canvas_lizard, document.getElementById('root'));
     ctx_lizard = canvas_lizard.getContext('2d');
-
-    // draw bounds
-    this.draw_bounds();
   }
 
   draw() {
@@ -56,9 +54,6 @@ class GameRenderer {
 
     // Draw all lizards and trails
     game.players.forEach(l => {
-      if (this.get_color(l.pos.x,l.pos.y)) {
-        game.kill_lizard(l);
-      }
       if (l.health && l.trail) {
         this.draw_trail(l);
       }
@@ -67,7 +62,15 @@ class GameRenderer {
       } else {
         this.draw_grave(l);
       }
+      this.get_collision_points(l).forEach(p => {
+        if (this.get_color(p)) {
+          game.kill_lizard(l);
+        }
+      });
     });
+
+    // draw_bounds
+    this.draw_bounds();
 
     // restore canvas
     ctx_trail.restore();
@@ -119,10 +122,8 @@ class GameRenderer {
 
   draw_bounds() {
     ctx_trail.strokeStyle = 'white';
-    ctx_trail.lineWidth = 0.01;
-    ctx_trail.save();
-    ctx_trail.translate(canvas_trail.width/2, canvas_trail.height/2);
-    ctx_trail.scale(canvas_trail.width,canvas_trail.height);
+    ctx_trail.lineWidth = 0.001;
+
     ctx_trail.beginPath();
     ctx_trail.moveTo(-0.5, -0.5);
     ctx_trail.lineTo(-0.5, 0.5);
@@ -131,12 +132,11 @@ class GameRenderer {
     ctx_trail.lineTo(-0.5, -0.5);
     ctx_trail.stroke();
     ctx_trail.closePath();
-    ctx_trail.restore();
   }
 
-  get_color(x,y) {
-    let X = canvas_trail.width*(x+0.5);
-    let Y = canvas_trail.height*(y+0.5);
+  get_color(p) {
+    let X = canvas_trail.width*(p.x+0.5);
+    let Y = canvas_trail.height*(p.y+0.5);
     let dat = ctx_trail.getImageData(X-2,Y-2,5,5).data;
     let flag = true;
     dat.forEach(pix => {
@@ -145,6 +145,30 @@ class GameRenderer {
       }
     });
     return flag;
+  }
+
+  get_collision_points(l) {
+    let col_points = [];
+    for (let i = -1; i <= 1; i++) {
+      let theta = i*Math.PI/4;
+      let rot = new Victor(
+        0.012*Math.cos(theta + l.dir),
+        0.012*Math.sin(theta + l.dir),
+      );
+      col_points.push(l.pos.clone().add(rot));
+    }
+    return col_points;
+  }
+
+  draw_col_points(pts) {
+    let radius = 0.0015;
+    pts.forEach(p => {
+      ctx_lizard.beginPath();
+      ctx_lizard.arc(p.x, p.y, radius, 0, 2*Math.PI);
+      ctx_lizard.fillStyle = 'white'
+      ctx_lizard.fill();
+      ctx_lizard.closePath();
+    })
   }
 }
 

@@ -248,7 +248,6 @@ module.exports = class ServerEngine {
         p.points += game_points;
         this.broadcast_queue();
         game_points++;
-        console.log(game_points);
       }
     });
   }

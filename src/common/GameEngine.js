@@ -33,6 +33,9 @@ class GameEngine {
       );
       let scale = new Victor(p.speed,p.speed);
       p.pos.add(move.multiply(scale));
+      if (p.pos.x < -0.5 || p.pos.x > 0.5 || p.pos.y < -0.5 || p.pos.y > 0.5) {
+        this.kill_lizard(p);
+      }
       p.pos.x = Math.max(p.pos.x,-0.5);
       p.pos.x = Math.min(p.pos.x,0.5);
       p.pos.y = Math.max(p.pos.y,-0.5);
