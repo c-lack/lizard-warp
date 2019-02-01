@@ -1,0 +1,23 @@
+{
+  "countdown_max": 5,
+  "game_update_rate": 17,
+  "trail_delay": 3000,
+  "move_delay": 1000,
+  "min_board": -0.5,
+  "max_board": 0.5,
+  "lizard_collide_dist": 0.012,
+  "trail_width": 0.005,
+  "lizard_radius": 0.05,
+  "frame_rate_scaler": 0.032,
+  "grave_size": 0.05,
+  "border_width": 0.001,
+  "start_scalar": 0.7,
+  "turn_speed": 0.04,
+  "trail_break_length": 300,
+  "game_trail_break_rate": 200,
+  "trail_break_chance": 0.1,
+  "game_broadcast_rate": 68,
+  "game_end_check_rate": 1000,
+  "board_width": 1,
+  "board_height": 1
+}

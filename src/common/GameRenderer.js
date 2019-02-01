@@ -1,6 +1,8 @@
 // GameRenderer.js
 var Victor = require('victor');
 
+let config = require('./config.json');
+
 let ctx_trail = null;
 let canvas_trail = null;
 let ctx_lizard = null;
@@ -83,7 +85,7 @@ class GameRenderer {
     ctx_trail.translate(l.pos.x,l.pos.y);
     ctx_trail.rotate(l.dir + Math.PI/2);
     ctx_trail.beginPath();
-    ctx_trail.arc(0,0,0.005,0,Math.PI);
+    ctx_trail.arc(0,0,config.trail_width,0,Math.PI);
     ctx_trail.fillStyle = l.color.code;
     ctx_trail.fill();
     ctx_trail.closePath();
@@ -91,7 +93,7 @@ class GameRenderer {
   }
 
   draw_lizard(l) {
-    let radius = 0.05
+    let radius = config.lizard_radius
     ctx_lizard.save();
     ctx_lizard.translate(l.pos.x,l.pos.y);
     ctx_lizard.rotate(l.dir + Math.PI/2);
@@ -101,7 +103,7 @@ class GameRenderer {
 
     // Calculations for animation speed
     // TODO: Change 16 to be dependent on speed
-    if (frameCount < 0.032/l.speed) {
+    if (frameCount < config.frame_rate_scaler/l.speed) {
       frameCount ++;
       return
     }
@@ -116,29 +118,29 @@ class GameRenderer {
   }
 
   draw_grave(l) {
-    let size = 0.05
+    let size = config.grave_size;
     ctx_lizard.drawImage(graveImage, 0, 0, 150, 150,
       l.pos.x-0.5*size, l.pos.y-0.5*size, size, size);
      }
 
   draw_bounds() {
     ctx_trail.strokeStyle = 'white';
-    ctx_trail.lineWidth = 0.001;
+    ctx_trail.lineWidth = config.border_width;
 
     ctx_trail.beginPath();
-    ctx_trail.moveTo(-0.5, -0.5);
-    ctx_trail.lineTo(-0.5, 0.5);
-    ctx_trail.lineTo( 0.5, 0.5);
-    ctx_trail.lineTo( 0.5, -0.5);
-    ctx_trail.lineTo(-0.5, -0.5);
+    ctx_trail.moveTo(config.min_board, config.min_board);
+    ctx_trail.lineTo(config.min_board, config.max_board);
+    ctx_trail.lineTo( config.max_board, config.max_board);
+    ctx_trail.lineTo( config.max_board, config.min_board);
+    ctx_trail.lineTo(config.min_board, config.min_board);
     ctx_trail.stroke();
     ctx_trail.closePath();
   }
 
   get_color(p) {
-    let X = canvas_trail.width*(p.x+0.5);
-    let Y = canvas_trail.height*(p.y+0.5);
-    let dat = ctx_trail.getImageData(X-2,Y-2,5,5).data;
+    let X = canvas_trail.width*(p.x+config.max_board);
+    let Y = canvas_trail.height*(p.y+config.max_board);
+    let dat = ctx_trail.getImageData(X,Y,1,1).data;
     let flag = true;
     dat.forEach(pix => {
       if (pix === 0) {
@@ -153,8 +155,8 @@ class GameRenderer {
     for (let i = -1; i <= 1; i++) {
       let theta = i*Math.PI/4;
       let rot = new Victor(
-        0.012*Math.cos(theta + l.dir),
-        0.012*Math.sin(theta + l.dir),
+        config.lizard_collide_dist*Math.cos(theta + l.dir),
+        config.lizard_collide_dist*Math.sin(theta + l.dir),
       );
       col_points.push(l.pos.clone().add(rot));
     }

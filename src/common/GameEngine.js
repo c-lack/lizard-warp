@@ -1,7 +1,9 @@
 // GameEngine.js
-let Lizard = require('../common/Lizard.js').Lizard;
+let Lizard = require('./Lizard.js').Lizard;
 
 let Victor = require('victor');
+
+let config = require('./config.json');
 
 class GameEngine {
   constructor() {
@@ -13,12 +15,12 @@ class GameEngine {
       _this.players.forEach(p => {
         p.trail = true;
       });
-    },3000);
+    },config.trail_delay);
     setTimeout(() => {
       _this.players.forEach(p => {
         p.speed = 0.002;
       });
-    },1000);
+    },config.move_delay);
   }
 
   add_player(props) {
@@ -34,13 +36,16 @@ class GameEngine {
       );
       let scale = new Victor(p.speed,p.speed);
       p.pos.add(move.multiply(scale));
-      if (p.pos.x < -0.5 || p.pos.x > 0.5 || p.pos.y < -0.5 || p.pos.y > 0.5) {
+      if (p.pos.x < config.min_board
+          || p.pos.x > config.max_board
+          || p.pos.y < config.min_board
+          || p.pos.y > config.max_board) {
         this.kill_lizard(p);
       }
-      p.pos.x = Math.max(p.pos.x,-0.5);
-      p.pos.x = Math.min(p.pos.x,0.5);
-      p.pos.y = Math.max(p.pos.y,-0.5);
-      p.pos.y = Math.min(p.pos.y,0.5);
+      p.pos.x = Math.max(p.pos.x,config.min_board);
+      p.pos.x = Math.min(p.pos.x,config.max_board);
+      p.pos.y = Math.max(p.pos.y,config.min_board);
+      p.pos.y = Math.min(p.pos.y,config.max_board);
       p.dir += p.turn*p.turn_speed;
     })
   }
@@ -51,7 +56,7 @@ class GameEngine {
         if (p1.id === p2.id) {
           return;
         }
-        if (p1.pos.clone().subtract(p2.pos).length() < 0.015) {
+        if (p1.pos.clone().subtract(p2.pos).length() < config.lizard_collide_dist) {
           if (Math.random() < 0.5) {
             this.kill_lizard(p1);
             this.kill_lizard(p2);

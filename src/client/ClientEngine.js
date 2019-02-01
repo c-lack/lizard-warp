@@ -4,6 +4,8 @@ var GameEngine = require('../common/GameEngine.js').GameEngine;
 
 let Victor = require('victor');
 
+let config = require('../common/config.json');
+
 class ClientEngine {
   constructor(socket) {
     this.socket = socket;
@@ -60,7 +62,7 @@ class ClientEngine {
     this.game_timer = setInterval(() => {
       this.game.step()
       this.check_deaths();
-    },17);
+    },config.game_update_rate);
   }
 
   end_game() {

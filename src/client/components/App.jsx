@@ -8,7 +8,9 @@ import StartGame from './StartGame.jsx';
 import Countdown from './Countdown.jsx';
 import GameRenderer from './GameRenderer.jsx';
 
-var ClientEngine = require('../ClientEngine.js').ClientEngine;
+let ClientEngine = require('../ClientEngine.js').ClientEngine;
+
+let config = require('../../common/config.json');
 
 class App extends Component {
   constructor() {
@@ -52,7 +54,7 @@ class App extends Component {
     });
     socket.on('cancel_countdown', () => {
       this.setState({
-        countdown_val: 5,
+        countdown_val: config.countdown_max,
         countdown: false,
       });
     });

@@ -1,6 +1,8 @@
 // ServerEngine.js
 let GameEngine = require('../common/GameEngine.js').GameEngine;
 
+let config = require('../common/config.json');
+
 let random_color = require('../common/utils.js').random_color;
 let random_pos = require('../common/utils.js').random_pos;
 
@@ -99,7 +101,7 @@ module.exports = class ServerEngine {
     if (this.countdown_timer) {
       console.log('double tap');
     } else {
-      let countdown_val = 5; // TODO change back to 5
+      let countdown_val = config.countdown_max;
       this.countdown_timer = setInterval(() => {
         this.broadcast_countdown(countdown_val--);
         if (countdown_val < 0) {
@@ -145,7 +147,6 @@ module.exports = class ServerEngine {
     game_points = 0;
     this.queue.forEach(p => {
       if (p.username !== '') {
-        console.log(p.username);
         this.gameengine.add_player({
           id: p.client.id,
           username: p.username,
@@ -154,7 +155,7 @@ module.exports = class ServerEngine {
           dir: Math.random()*Math.PI,
           health: true,
           speed: 0,
-          turn_speed: 0.04,
+          turn_speed: config.turn_speed,
           turn: 0,
           trail: false,
         });
@@ -173,22 +174,24 @@ module.exports = class ServerEngine {
   break_trail() {
     let rand_l = this.gameengine.players[Math.floor(
       Math.random()*this.gameengine.players.length)];
-    rand_l.trail = false;
-    setTimeout(() => {
-      rand_l.trail = true;
-    },300);
+    if (rand_l.trail) {
+      rand_l.trail = false;
+      setTimeout(() => {
+        rand_l.trail = true;
+      },config.trail_break_length);
+    }
   }
 
   run_game() {
     this.broadcast_start_game();
     this.game_timer = setInterval(() => {
       this.gameengine.step();
-    },17);
+    },config.game_update_rate);
     this.trail_timer = setInterval(() => {
-      if (Math.random() < this.gameengine.players.length*0.1) {
+      if (Math.random() < this.gameengine.players.length*config.trail_break_chance) {
         this.break_trail();
       }
-    },200);
+    },config.game_trail_break_rate);
     this.broadcast_timer = setInterval(() => {
       this.queue.forEach(p => {
         p.client.emit('game_state', JSON.stringify({
@@ -199,10 +202,10 @@ module.exports = class ServerEngine {
       this.gameengine.walls_temp = [];
       this.gameengine.walls_fixed = this.gameengine
         .walls_fixed.concat(this.gameengine.walls_temp);
-    },68);
+    },config.game_broadcast_rate);
     this.end_game_timer = setInterval(() => {
       this.check_end_game();
-    },1000);
+    },config.game_end_check_rate);
   }
 
   check_end_game() {

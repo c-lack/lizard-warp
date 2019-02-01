@@ -1,8 +1,10 @@
 let colors = shuffle(require('../common/colors.json'));
 let Victor = require('victor');
 
-const height = 1;
-const width = 1;
+let config = require('./config.json');
+
+let width = config.board_width;
+let height = config.board_height;
 
 exports.random_color = () => {
   colors.push(colors.shift());
@@ -11,8 +13,8 @@ exports.random_color = () => {
 
 exports.random_pos = () => {
   return new Victor(
-    0.7*(Math.random()-0.5)*width,
-    0.7*(Math.random()-0.5)*height
+    config.start_scalar*(Math.random()-config.max_board)*width,
+    config.start_scalar*(Math.random()-config.max_board)*height
   );
 }
 
