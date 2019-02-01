@@ -7,7 +7,8 @@
     "start": "node src/server/index.js",
     "build": "webpack -p --progress --config webpack.config.js",
     "watch": "webpack --progress -d --config webpack.config.js --watch",
-    "dev": "concurrently \"nodemon src/server/index.js\" \"npm run watch\" --kill-others"
+    "dev": "concurrently \"nodemon src/server/index.js\" \"npm run watch\" --kill-others",
+    "heroku-postbuild": "npm run build",
   },
   "keywords": [],
   "author": "",
