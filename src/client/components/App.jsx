@@ -137,6 +137,9 @@ class App extends Component {
           ? <GameRenderer engine={this.state.clientengine} />
           : <div></div>
         }
+        <div>
+          <audio id="theme_audio" src={"./music/theme.mp3"} controls autoPlay loop />
+        </div>
       </div>
     )
   }

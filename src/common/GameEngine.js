@@ -26,6 +26,7 @@ class GameEngine {
   }
 
   step() {
+    this.collision_detection();
     this.players.forEach(p => {
       let move = new Victor(
         Math.cos(p.dir),
@@ -42,6 +43,25 @@ class GameEngine {
       p.pos.y = Math.min(p.pos.y,0.5);
       p.dir += p.turn*p.turn_speed;
     })
+  }
+
+  collision_detection() {
+    this.players.forEach(p1 => {
+      this.players.forEach(p2 => {
+        if (p1.id === p2.id) {
+          return;
+        }
+        if (p1.pos.clone().subtract(p2.pos).length() < 0.015) {
+          if (Math.random() < 0.5) {
+            this.kill_lizard(p1);
+            this.kill_lizard(p2);
+          } else {
+            this.kill_lizard(p2);
+            this.kill_lizard(p1);
+          }
+        }
+      });
+    });
   }
 
   kill_lizard(l) {

@@ -62,6 +62,7 @@ class GameRenderer {
       } else {
         this.draw_grave(l);
       }
+      // this.draw_col_points(this.get_collision_points(l));
       this.get_collision_points(l).forEach(p => {
         if (this.get_color(p)) {
           game.kill_lizard(l);
