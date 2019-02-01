@@ -15,6 +15,7 @@ module.exports = class ServerEngine {
     this.trail_timer = false;
     this.broadcast_timer = false;
     this.end_game_timer = false;
+    this.countdown_timer = false;
   }
 
   add_client(client) {
@@ -51,7 +52,7 @@ module.exports = class ServerEngine {
     });
     client.on('cancel_countdown', () => {
       this.cancel_countdown();
-    })
+    });
     client.on('turn_left', () => {
       this.turn(client,-1);
     });
@@ -95,14 +96,19 @@ module.exports = class ServerEngine {
   }
 
   start_countdown() {
-    let countdown_val = 1; // TODO change back to 5
-    this.countdown_timer = setInterval(() => {
-      this.broadcast_countdown(countdown_val--);
-      if (countdown_val < 0) {
-        clearInterval(this.countdown_timer);
-        this.start_game();
-      }
-    },1000);
+    if (this.countdown_timer) {
+      console.log('double tap');
+    } else {
+      let countdown_val = 5; // TODO change back to 5
+      this.countdown_timer = setInterval(() => {
+        this.broadcast_countdown(countdown_val--);
+        if (countdown_val < 0) {
+          clearInterval(this.countdown_timer);
+          this.countdown_timer = false;
+          this.start_game();
+        }
+      },1000);
+    }
   }
 
   broadcast_countdown(val) {
@@ -113,7 +119,7 @@ module.exports = class ServerEngine {
 
   cancel_countdown() {
     clearInterval(this.countdown_timer);
-    this.countdown_timer = null;
+    this.countdown_timer = false;
     this.broadcast_countdown_cancel();
   }
 
@@ -138,18 +144,21 @@ module.exports = class ServerEngine {
   initialise_game() {
     game_points = 0;
     this.queue.forEach(p => {
-      this.gameengine.add_player({
-        id: p.client.id,
-        username: p.username,
-        color: p.color,
-        pos: random_pos(),
-        dir: Math.random()*Math.PI,
-        health: true,
-        speed: 0,
-        turn_speed: 0.04,
-        turn: 0,
-        trail: false,
-      });
+      if (p.username !== '') {
+        console.log(p.username);
+        this.gameengine.add_player({
+          id: p.client.id,
+          username: p.username,
+          color: p.color,
+          pos: random_pos(),
+          dir: Math.random()*Math.PI,
+          health: true,
+          speed: 0,
+          turn_speed: 0.04,
+          turn: 0,
+          trail: false,
+        });
+      }
     });
   }
 
