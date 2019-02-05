@@ -29,3 +29,10 @@ function shuffle(a) {
     }
     return a;
 }
+
+exports.zip = (a,b) => {
+    let c = a.map(function(e, i) {
+      return [e, b[i]];
+    });
+    return c;
+}

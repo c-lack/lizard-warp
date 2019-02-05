@@ -5,14 +5,28 @@ let config = require('../common/config.json');
 
 let random_color = require('../common/utils.js').random_color;
 let random_pos = require('../common/utils.js').random_pos;
+let zip = require('../common/utils.js').zip;
 
 let GoogleSpreadsheet = require('google-spreadsheet');
+const { promisify } = require('util')
+
 let creds = require('./secret.json');
 
 // Create a document object using the ID of the spreadsheet - obtained from its URL.
 let doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
+let info = null;
+
+async function accessSpreadsheet() {
+  await promisify(doc.useServiceAccountAuth)(creds)
+  info = await promisify(doc.getInfo)()
+}
+
+accessSpreadsheet()
 
 let game_points = 0;
+
+let beta = 0.05;
+alpha = 0.1;
 
 module.exports = class ServerEngine {
   constructor() {
@@ -291,7 +305,123 @@ module.exports = class ServerEngine {
         if (err) {
           throw err;
         }
+        this.get_results();
       });
     });
   }
+
+  get_results() {
+    get_games()
+      .then(games => save_leaderboard(calc_leaderboard(games))
+    );
+  }
+
+}
+
+async function get_games() {
+  const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
+  await promisify(doc.useServiceAccountAuth)(creds)
+  const info = await promisify(doc.getInfo)()
+  const sheet = info.worksheets[0];
+
+  let games = [];
+  let players = [];
+  for (let i = 2; i < 20; i++) {
+    let cells = await promisify(sheet.getCells)({
+      'min-row': i,
+      'max-row': i,
+      'min-col': 1,
+      'max-col': 26,
+      'return-empty': false,
+    });
+    game = [];
+    for (const cell of cells) {
+      if (!players.includes(cell.value)) {
+        players.push(cell.value);
+      }
+      game.push(cell.value);
+    }
+    if (game.length !== 0) {
+      games.push(game);
+    }
+  }
+  return [players, games];
+}
+
+function calc_leaderboard(games) {
+  let players = games[0];
+  games = games[1];
+
+
+  let scores = new Object();
+  for (const plyr of players) {
+    scores[plyr] = 0;
+  }
+  games.forEach(game => {
+    let p = [];
+    game.forEach(plyr => {
+      p.push(scores[plyr]);
+    })
+    d = rank(p);
+    zip(game,d).forEach(tuple => {
+      scores[tuple[0]] = scores[tuple[0]] + tuple[1];
+    });
+  })
+  let leaderboard = [];
+  players.forEach(plyr => {
+    leaderboard.push({
+      name: plyr,
+      rank: scores[plyr]
+    })
+  });
+  return leaderboard.sort((a,b) => b.rank - a.rank);
+}
+
+async function save_leaderboard(leaderboard) {
+  const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
+  await promisify(doc.useServiceAccountAuth)(creds)
+  const info = await promisify(doc.getInfo)()
+  const sheet = info.worksheets[1];
+  const cells = await promisify(sheet.getCells)({
+    'min-row': 1,
+    'max-row': 1000,
+    'min-col': 1,
+    'max-col': 2,
+    'return-empty': true,
+  })
+  for (const cell of cells) {
+      if (cell.row < 2) {
+        continue;
+      } else {
+        cell.value = '';
+        if (cell.row - 2 < leaderboard.length) {
+          if (cell.col < 2) {
+            cell.value = leaderboard[cell.row-2].name
+          } else {
+            cell.value = (Math.trunc(leaderboard[cell.row-2].rank*1000 + 3000)).toString();
+          }
+        }
+      }
+  }
+  await promisify(sheet.bulkUpdateCells)(cells);
+}
+
+function rank(arr) {
+  if (arr.length === 2) {
+    return rank_2(arr[0],arr[1]);
+  } else {
+    let d = rank(arr.slice(0,-1));
+    d.push(0);
+    for (let i = 0; i < d.length - 1; i++) {
+      d[i] = d[i] + rank_2(arr[i], arr[arr.length-1])[0];
+      d[d.length-1] = d[d.length-1] - rank_2(arr[i],arr[arr.length-1])[0];
+    }
+    return d;
+  }
+}
+
+function rank_2(p1,p2) {
+  let d1 = Math.min(beta,alpha*Math.exp(p2-p1));
+  let d2 = -d1;
+  return [d1,d2];
 }
