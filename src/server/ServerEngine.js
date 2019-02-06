@@ -12,17 +12,6 @@ const { promisify } = require('util')
 
 let creds = require('./secret.json');
 
-// Create a document object using the ID of the spreadsheet - obtained from its URL.
-let doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
-let info = null;
-
-async function accessSpreadsheet() {
-  await promisify(doc.useServiceAccountAuth)(creds)
-  info = await promisify(doc.getInfo)()
-}
-
-accessSpreadsheet()
-
 let game_points = 0;
 
 let beta = 0.05;
@@ -39,6 +28,7 @@ module.exports = class ServerEngine {
     this.end_game_timer = false;
     this.countdown_timer = false;
     this.results = [];
+    this.recalculate_leaderboard();
   }
 
   add_client(client) {
@@ -250,7 +240,12 @@ module.exports = class ServerEngine {
             if (!this.results.includes(c.username)) {
               this.results.push(c.username)
             }
-            this.store_results(this.results);
+            let tmp_results = this.results;
+            save_game(tmp_results).then(() => {
+              get_leaderboard().then(leaderboard => {
+                save_leaderboard(update_leaderboard(leaderboard,tmp_results))
+              });
+            });
             this.results = [];
             this.broadcast_queue();
             game_points = 0;
@@ -293,29 +288,26 @@ module.exports = class ServerEngine {
     });
   }
 
-  store_results(res) {
-    let obj = new Object();
-    for (let i = 0; i < res.length; i++) {
-      let key = (i+10).toString(36);
-      obj[key]=res[i];
-    }
-
-    doc.useServiceAccountAuth(creds, (err) => {
-      doc.addRow(1, obj, (err) => {
-        if (err) {
-          throw err;
-        }
-        this.get_results();
-      });
+  recalculate_leaderboard() {
+    get_games().then(games => {
+      save_leaderboard(calc_new_leaderboard(games));
     });
   }
 
-  get_results() {
-    get_games()
-      .then(games => save_leaderboard(calc_leaderboard(games))
-    );
-  }
+}
 
+async function save_game(game) {
+  const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
+  await promisify(doc.useServiceAccountAuth)(creds)
+  const info = await promisify(doc.getInfo)()
+  const sheet = info.worksheets[0];
+
+  let game_obj = new Object();
+  for (let i = 0; i < game.length; i++) {
+    let key = (i+10).toString(36);
+    game_obj[key]=game[i];
+  }
+  await promisify(doc.addRow)(1,game_obj);
 }
 
 async function get_games() {
@@ -326,29 +318,26 @@ async function get_games() {
 
   let games = [];
   let players = [];
-  for (let i = 2; i < 20; i++) {
-    let cells = await promisify(sheet.getCells)({
-      'min-row': i,
-      'max-row': i,
-      'min-col': 1,
-      'max-col': 26,
-      'return-empty': false,
-    });
-    game = [];
-    for (const cell of cells) {
-      if (!players.includes(cell.value)) {
-        players.push(cell.value);
+  let rows = await promisify(sheet.getRows)({
+    offset: 1,
+  });
+  for (const row of rows) {
+    let game = [];
+    for (let i = 0; i < 16; i++) {
+      let key = (i+10).toString(base=26);
+      if (row[key] !== '') {
+        game.push(row[key]);
+        if (!players.includes(row[key])) {
+          players.push(row[key]);
+        }
       }
-      game.push(cell.value);
     }
-    if (game.length !== 0) {
-      games.push(game);
-    }
+    games.push(game);
   }
   return [players, games];
 }
 
-function calc_leaderboard(games) {
+function calc_new_leaderboard(games) {
   let players = games[0];
   games = games[1];
 
@@ -361,8 +350,8 @@ function calc_leaderboard(games) {
     let p = [];
     game.forEach(plyr => {
       p.push(scores[plyr]);
-    })
-    d = rank(p);
+    });
+    let d = rank(p);
     zip(game,d).forEach(tuple => {
       scores[tuple[0]] = scores[tuple[0]] + tuple[1];
     });
@@ -373,6 +362,31 @@ function calc_leaderboard(games) {
       name: plyr,
       rank: scores[plyr]
     })
+  });
+  return leaderboard.sort((a,b) => b.rank - a.rank);
+}
+
+function update_leaderboard(leaderboard, game) {
+  let p = [];
+  console.log(leaderboard);
+  game.forEach(plyr => {
+    if (leaderboard.map(x => x.name).includes(plyr)) {
+      console.log(plyr);
+      p.push(leaderboard.find(x => {
+        return x.name === plyr;
+      }).rank);
+    } else {
+      p.push(0);
+      leaderboard.push({
+        name: plyr,
+        rank: 0,
+      });
+    }
+  });
+  console.log(leaderboard,p);
+  let d = rank(p);
+  zip(game,d).forEach(updt => {
+    leaderboard.find(x => x.name === updt[0]).rank += updt[1];
   });
   return leaderboard.sort((a,b) => b.rank - a.rank);
 }
@@ -404,6 +418,24 @@ async function save_leaderboard(leaderboard) {
       }
   }
   await promisify(sheet.bulkUpdateCells)(cells);
+}
+
+async function get_leaderboard() {
+  const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
+  await promisify(doc.useServiceAccountAuth)(creds)
+  const info = await promisify(doc.getInfo)()
+  const sheet = info.worksheets[1];
+  let rows = await promisify(sheet.getRows)({
+    offset: 1,
+  });
+  let leaderboard = [];
+  for (const row of rows) {
+    leaderboard.push({
+      name: row.name,
+      rank: (row.rank-3000)/1000,
+    });
+  }
+  return leaderboard;
 }
 
 function rank(arr) {
