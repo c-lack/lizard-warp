@@ -7,6 +7,7 @@ import Queue from './Queue.jsx';
 import StartGame from './StartGame.jsx';
 import Countdown from './Countdown.jsx';
 import GameRenderer from './GameRenderer.jsx';
+import Leaderboard from './Leaderboard.jsx';
 
 let ClientEngine = require('../ClientEngine.js').ClientEngine;
 
@@ -28,6 +29,7 @@ class App extends Component {
 
   componentDidMount() {
     this.register_events(socket);
+    this.getLeaderboard();
   }
 
   register_events(socket) {
@@ -67,6 +69,11 @@ class App extends Component {
     socket.on('game_running', () => {
       this.setState({
         game_btn: false
+      });
+    });
+    socket.on('leaderboard', (json) => {
+      this.setState({
+        leaderboard: JSON.parse(json)
       });
     });
   }
@@ -117,6 +124,10 @@ class App extends Component {
     },2000);
   }
 
+  getLeaderboard() {
+    socket.emit('leaderboard');
+  }
+
   render() {
     return (
       <div className="app">
@@ -141,6 +152,12 @@ class App extends Component {
         }
         <div>
           <audio id="theme_audio" src={"./music/theme.mp3"} controls autoPlay loop />
+        </div>
+        <div>
+          <Leaderboard
+            get={this.getLeaderboard}
+            leaderboard={this.state.leaderboard}
+          />
         </div>
       </div>
     )

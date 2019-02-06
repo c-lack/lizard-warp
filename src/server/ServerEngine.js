@@ -78,6 +78,11 @@ module.exports = class ServerEngine {
     client.on('death', () => {
       this.kill_lizard(client);
     });
+    client.on('leaderboard', () => {
+      get_leaderboard().then(leaderboard => {
+        client.emit('leaderboard', JSON.stringify(leaderboard));
+      });
+    });
   }
 
   register_username(client, username) {
