@@ -8,12 +8,15 @@ export default class GameRenderer extends Component {
   constructor(props) {
     super(props);
     this.renderer = new Renderer(props.engine.game);
-    setInterval(() => {
+    this.render_interval = setInterval(() => {
       this.renderer.draw()
     },config.game_update_rate);
   }
 
   render() {
+    if (!this.props.game) {
+      clearInterval(this.render_interval);
+    }
     this.renderer.draw();
     return (
       <div></div>
