@@ -373,10 +373,8 @@ function calc_new_leaderboard(games) {
 
 function update_leaderboard(leaderboard, game) {
   let p = [];
-  console.log(leaderboard);
   game.forEach(plyr => {
     if (leaderboard.map(x => x.name).includes(plyr)) {
-      console.log(plyr);
       p.push(leaderboard.find(x => {
         return x.name === plyr;
       }).rank);
@@ -388,7 +386,6 @@ function update_leaderboard(leaderboard, game) {
       });
     }
   });
-  console.log(leaderboard,p);
   let d = rank(p);
   zip(game,d).forEach(updt => {
     leaderboard.find(x => x.name === updt[0]).rank += updt[1];

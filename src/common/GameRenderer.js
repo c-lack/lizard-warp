@@ -81,15 +81,28 @@ class GameRenderer {
   }
 
   draw_trail(l) {
-    ctx_trail.save();
-    ctx_trail.translate(l.pos.x,l.pos.y);
-    ctx_trail.rotate(l.dir + Math.PI/2);
-    ctx_trail.beginPath();
-    ctx_trail.arc(0,0,config.trail_width,0,Math.PI);
-    ctx_trail.fillStyle = l.color.code;
-    ctx_trail.fill();
-    ctx_trail.closePath();
-    ctx_trail.restore();
+    if (l.prev_pos) {
+      ctx_trail.strokeStyle = l.color.code;
+      ctx_trail.lineWidth = config.trail_width;
+
+      ctx_trail.beginPath();
+      ctx_trail.moveTo(l.prev_pos[0].x,l.prev_pos[0].y);
+      l.prev_pos.forEach(p => {
+        ctx_trail.lineTo(p.x,p.y);
+      })
+      ctx_trail.lineTo(l.pos.x,l.pos.y);
+      ctx_trail.stroke();
+      ctx_trail.closePath();
+    }
+    // ctx_trail.save();
+    // ctx_trail.translate(l.pos.x,l.pos.y);
+    // ctx_trail.rotate(l.dir + Math.PI/2);
+    // ctx_trail.beginPath();
+    // ctx_trail.arc(0,0,config.trail_width,0,Math.PI);
+    // ctx_trail.fillStyle = l.color.code;
+    // ctx_trail.fill();
+    // ctx_trail.closePath();
+    // ctx_trail.restore();
   }
 
   draw_lizard(l) {

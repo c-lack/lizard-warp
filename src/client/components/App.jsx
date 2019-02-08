@@ -147,7 +147,7 @@ class App extends Component {
           : <div></div>
         }
         {this.state.game
-          ? <GameRenderer engine={this.state.clientengine} />
+          ? <GameRenderer engine={this.state.clientengine} game={this.state.game}/>
           : <div></div>
         }
         <div>

@@ -30,6 +30,17 @@ class GameEngine {
   step() {
     this.collision_detection();
     this.players.forEach(p => {
+      if (p.trail) {
+        if (!p.prev_pos) {
+          p.prev_pos = [];
+        }
+        p.prev_pos.push(p.pos.clone());
+        while (p.prev_pos.length > config.trail_render_length) {
+          p.prev_pos.shift();
+        }
+      } else {
+        p.prev_pos = false;
+      }
       let move = new Victor(
         Math.cos(p.dir),
         Math.sin(p.dir),
