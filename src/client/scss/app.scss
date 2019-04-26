@@ -1,5 +1,32 @@
+// Color scheme
+$black: #020104;
+$purple: #572663;
+$red: #B15B60;
+$beige: #AB7EB6;
+
 body {
-  background: rgb(100,7,40);
-  color: rgb(20,120,60);
-  text-align: center;
+  background: $black;
+  color: $purple;
+}
+
+ul {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+li {
+  list-style: none;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+audio {
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
