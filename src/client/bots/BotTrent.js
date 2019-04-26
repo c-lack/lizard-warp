@@ -1,13 +1,13 @@
 let config = require('../../common/config.json');
-let remainder = require('../../common/utils.js').floatSafeRemainder;
 let Victor = require('victor');
 
-class BotAvoid {
+class BotTrent {
     constructor(game, left, right, straight) {
         this.game = game;
         this.left = left;        
         this.right = right;
         this.straight = straight;
+        this.bot_name = "bot_trent";
 
         this.lizard = this.get_lizard();
 
@@ -27,7 +27,7 @@ class BotAvoid {
     get_lizard() {
         let this_lizard
         this.game.players.map((l) => {
-            if (l.username === "bot_avoid") {
+            if (l.username === this.bot_name) {
                 this_lizard = l;
                 return
             }
@@ -49,7 +49,7 @@ class BotAvoid {
         // Avoid other lizards
         let sum_vecs = new Victor(0,0);
         this.game.players.map((l) => {
-            if (l.username === "bot_avoid") {
+            if (l.username === this.bot_name) {
                 return
             }
             sum_vecs = sum_vecs.add(
@@ -64,4 +64,4 @@ class BotAvoid {
     }
 }
 
-exports.BotAvoid = BotAvoid;
+exports.BotTrent = BotTrent;

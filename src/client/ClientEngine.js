@@ -3,6 +3,13 @@
 let GameEngine = require('../common/GameEngine.js').GameEngine;
 let BotRandom = require('./bots/BotRandom.js').BotRandom;
 let BotAvoid = require('./bots/BotAvoid.js').BotAvoid;
+let BotChris = require('./bots/BotChris.js').BotChris;
+let BotAlvaro = require('./bots/BotAlvaro.js').BotAlvaro;
+let BotSon = require('./bots/BotSon.js').BotSon;
+let BotAlex = require('./bots/BotAlex.js').BotAlex;
+let BotConnor = require('./bots/BotConnor.js').BotConnor;
+let BotMoh = require('./bots/BotMoh.js').BotMoh;
+let BotTrent = require('./bots/BotTrent.js').BotTrent;
 
 let Victor = require('victor');
 
@@ -123,6 +130,69 @@ class ClientEngine {
             case 'avoid':
               // Register this client as a random bot
               this.bot = new BotAvoid(
+                this.game,
+                this.turn_left.bind(this),
+                this.turn_right.bind(this),
+                this.turn_straight.bind(this)
+              )
+              break;
+            case 'chris':
+              // Register this client as a random bot
+              this.bot = new BotChris(
+                this.game,
+                this.turn_left.bind(this),
+                this.turn_right.bind(this),
+                this.turn_straight.bind(this)
+              )
+              break;
+            case 'alvaro':
+              // Register this client as a random bot
+              this.bot = new BotAlvaro(
+                this.game,
+                this.turn_left.bind(this),
+                this.turn_right.bind(this),
+                this.turn_straight.bind(this)
+              )
+              break;
+            case 'son':
+              // Register this client as a random bot
+              this.bot = new BotSon(
+                this.game,
+                this.turn_left.bind(this),
+                this.turn_right.bind(this),
+                this.turn_straight.bind(this)
+              )
+              break;
+            case 'alex':
+              // Register this client as a random bot
+              this.bot = new BotAlex(
+                this.game,
+                this.turn_left.bind(this),
+                this.turn_right.bind(this),
+                this.turn_straight.bind(this)
+              )
+              break;
+            case 'moh':
+              // Register this client as a random bot
+              this.bot = new BotMoh(
+                this.game,
+                this.turn_left.bind(this),
+                this.turn_right.bind(this),
+                this.turn_straight.bind(this)
+              )
+              break;
+            case 'trent':
+              // Register this client as a random bot
+              this.bot = new BotTrent(
+                this.game,
+                this.turn_left.bind(this),
+                this.turn_right.bind(this),
+                this.turn_straight.bind(this)
+              )
+              break;
+            case 'connor':
+              // Register this client as a random bot
+              this.bot = new BotConnor(
                 this.game,
                 this.turn_left.bind(this),
                 this.turn_right.bind(this),
