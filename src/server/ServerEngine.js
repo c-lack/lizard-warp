@@ -10,7 +10,7 @@ let zip = require('../common/utils.js').zip;
 let GoogleSpreadsheet = require('google-spreadsheet');
 const { promisify } = require('util')
 
-let creds = require('./secret.json');
+// let creds = require('./secret.json');
 
 let game_points = 0;
 
