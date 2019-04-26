@@ -10,9 +10,9 @@ export default class Leaderboard extends Component {
   render() {
     return (
       <div className="leaderboard">
-        <button onClick={() => this.setState({show: !this.state.show})}>
+        {/* <button onClick={() => this.setState({show: !this.state.show})}>
           Show leaderboard
-        </button>
+        </button> */}
         {this.state.show ?
           <div>
             {this.props.leaderboard ? this.props.leaderboard.map(player => {

@@ -28,6 +28,7 @@ class GameRenderer {
 
     // Set up trail canvas
     canvas_trail = document.createElement('canvas');
+    canvas_trail.setAttribute("id", "canvas_trail");
     canvas_trail.width = Math.min(window.innerWidth,window.innerHeight);
     canvas_trail.height = Math.min(window.innerWidth,window.innerHeight);
     document.body.insertBefore(canvas_trail, document.getElementById('root'));
@@ -35,6 +36,7 @@ class GameRenderer {
 
     // Set up lizard canvas
     canvas_lizard = document.createElement('canvas');
+    canvas_lizard.setAttribute("id", "canvas_lizard");
     canvas_lizard.width = Math.min(window.innerWidth,window.innerHeight);
     canvas_lizard.height = Math.min(window.innerWidth,window.innerHeight);
     document.body.insertBefore(canvas_lizard, document.getElementById('root'));

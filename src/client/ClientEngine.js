@@ -1,6 +1,8 @@
 // ClientEngine.js
 
-var GameEngine = require('../common/GameEngine.js').GameEngine;
+let GameEngine = require('../common/GameEngine.js').GameEngine;
+let BotRandom = require('./bots/BotRandom.js').BotRandom;
+let BotAvoid = require('./bots/BotAvoid.js').BotAvoid;
 
 let Victor = require('victor');
 
@@ -60,13 +62,17 @@ class ClientEngine {
 
   run_game() {
     this.game_timer = setInterval(() => {
-      this.game.step()
+      this.game.step();
       this.check_deaths();
     },config.game_update_rate);
   }
 
   end_game() {
     clearInterval(this.game_timer);
+    if (this.bot) {
+      this.bot.disable_interval();
+    }
+    location.reload();
   }
 
   check_deaths() {
@@ -100,7 +106,35 @@ class ClientEngine {
         turn: p.turn
       });
     });
-
+    // Check if this client is a bot
+    props.players.forEach(p => {
+      if (p.id === this.socket.id) {
+        if (p.username.substring(0,4) === 'bot_') {
+          switch(p.username.substring(4,p.username.length)) {
+            case 'random':
+              // Register this client as a random bot
+              this.bot = new BotRandom(
+                this.game,
+                this.turn_left.bind(this),
+                this.turn_right.bind(this),
+                this.turn_straight.bind(this)
+              )
+              break;
+            case 'avoid':
+              // Register this client as a random bot
+              this.bot = new BotAvoid(
+                this.game,
+                this.turn_left.bind(this),
+                this.turn_right.bind(this),
+                this.turn_straight.bind(this)
+              )
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    })
   }
 
   update_state(props) {

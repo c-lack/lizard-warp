@@ -20,5 +20,6 @@
   "game_end_check_rate": 100,
   "board_width": 1,
   "board_height": 1,
-  "trail_render_length": 5
+  "trail_render_length": 5,
+  "bot_update_rate": 300
 }

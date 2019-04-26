@@ -78,11 +78,11 @@ module.exports = class ServerEngine {
     client.on('death', () => {
       this.kill_lizard(client);
     });
-    client.on('leaderboard', () => {
-      get_leaderboard().then(leaderboard => {
-        client.emit('leaderboard', JSON.stringify(leaderboard));
-      });
-    });
+    // client.on('leaderboard', () => {
+    //   get_leaderboard().then(leaderboard => {
+    //     client.emit('leaderboard', JSON.stringify(leaderboard));
+    //   });
+    // });
   }
 
   register_username(client, username) {
@@ -246,11 +246,11 @@ module.exports = class ServerEngine {
               this.results.push(c.username)
             }
             let tmp_results = this.results;
-            save_game(tmp_results).then(() => {
-              get_leaderboard().then(leaderboard => {
-                save_leaderboard(update_leaderboard(leaderboard,tmp_results))
-              });
-            });
+            // save_game(tmp_results).then(() => {
+            //   get_leaderboard().then(leaderboard => {
+            //     save_leaderboard(update_leaderboard(leaderboard,tmp_results))
+            //   });
+            // });
             this.results = [];
             this.broadcast_queue();
             game_points = 0;
@@ -302,44 +302,44 @@ module.exports = class ServerEngine {
 }
 
 async function save_game(game) {
-  const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
-  await promisify(doc.useServiceAccountAuth)(creds)
-  const info = await promisify(doc.getInfo)()
-  const sheet = info.worksheets[0];
+  // const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
+  // await promisify(doc.useServiceAccountAuth)(creds)
+  // const info = await promisify(doc.getInfo)()
+  // const sheet = info.worksheets[0];
 
-  let game_obj = new Object();
-  for (let i = 0; i < game.length; i++) {
-    let key = (i+10).toString(36);
-    game_obj[key]=game[i];
-  }
-  await promisify(doc.addRow)(1,game_obj);
+  // let game_obj = new Object();
+  // for (let i = 0; i < game.length; i++) {
+  //   let key = (i+10).toString(36);
+  //   game_obj[key]=game[i];
+  // }
+  // await promisify(doc.addRow)(1,game_obj);
 }
 
 async function get_games() {
-  const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
-  await promisify(doc.useServiceAccountAuth)(creds)
-  const info = await promisify(doc.getInfo)()
-  const sheet = info.worksheets[0];
+  // const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
+  // await promisify(doc.useServiceAccountAuth)(creds)
+  // const info = await promisify(doc.getInfo)()
+  // const sheet = info.worksheets[0];
 
-  let games = [];
-  let players = [];
-  let rows = await promisify(sheet.getRows)({
-    offset: 1,
-  });
-  for (const row of rows) {
-    let game = [];
-    for (let i = 0; i < 16; i++) {
-      let key = (i+10).toString(base=26);
-      if (row[key] !== '') {
-        game.push(row[key]);
-        if (!players.includes(row[key])) {
-          players.push(row[key]);
-        }
-      }
-    }
-    games.push(game);
-  }
-  return [players, games];
+  // let games = [];
+  // let players = [];
+  // let rows = await promisify(sheet.getRows)({
+  //   offset: 1,
+  // });
+  // for (const row of rows) {
+  //   let game = [];
+  //   for (let i = 0; i < 16; i++) {
+  //     let key = (i+10).toString(base=26);
+  //     if (row[key] !== '') {
+  //       game.push(row[key]);
+  //       if (!players.includes(row[key])) {
+  //         players.push(row[key]);
+  //       }
+  //     }
+  //   }
+  //   games.push(game);
+  // }
+  // return [players, games];
 }
 
 function calc_new_leaderboard(games) {
@@ -394,50 +394,50 @@ function update_leaderboard(leaderboard, game) {
 }
 
 async function save_leaderboard(leaderboard) {
-  const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
-  await promisify(doc.useServiceAccountAuth)(creds)
-  const info = await promisify(doc.getInfo)()
-  const sheet = info.worksheets[1];
-  const cells = await promisify(sheet.getCells)({
-    'min-row': 1,
-    'max-row': 1000,
-    'min-col': 1,
-    'max-col': 2,
-    'return-empty': true,
-  })
-  for (const cell of cells) {
-      if (cell.row < 2) {
-        continue;
-      } else {
-        cell.value = '';
-        if (cell.row - 2 < leaderboard.length) {
-          if (cell.col < 2) {
-            cell.value = leaderboard[cell.row-2].name
-          } else {
-            cell.value = (Math.trunc(leaderboard[cell.row-2].rank*1000 + 3000)).toString();
-          }
-        }
-      }
-  }
-  await promisify(sheet.bulkUpdateCells)(cells);
+  // const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
+  // await promisify(doc.useServiceAccountAuth)(creds)
+  // const info = await promisify(doc.getInfo)()
+  // const sheet = info.worksheets[1];
+  // const cells = await promisify(sheet.getCells)({
+  //   'min-row': 1,
+  //   'max-row': 1000,
+  //   'min-col': 1,
+  //   'max-col': 2,
+  //   'return-empty': true,
+  // })
+  // for (const cell of cells) {
+  //     if (cell.row < 2) {
+  //       continue;
+  //     } else {
+  //       cell.value = '';
+  //       if (cell.row - 2 < leaderboard.length) {
+  //         if (cell.col < 2) {
+  //           cell.value = leaderboard[cell.row-2].name
+  //         } else {
+  //           cell.value = (Math.trunc(leaderboard[cell.row-2].rank*1000 + 3000)).toString();
+  //         }
+  //       }
+  //     }
+  // }
+  // await promisify(sheet.bulkUpdateCells)(cells);
 }
 
 async function get_leaderboard() {
-  const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
-  await promisify(doc.useServiceAccountAuth)(creds)
-  const info = await promisify(doc.getInfo)()
-  const sheet = info.worksheets[1];
-  let rows = await promisify(sheet.getRows)({
-    offset: 1,
-  });
-  let leaderboard = [];
-  for (const row of rows) {
-    leaderboard.push({
-      name: row.name,
-      rank: (row.rank-3000)/1000,
-    });
-  }
-  return leaderboard;
+  // const doc = new GoogleSpreadsheet('1ZEL1XOaabYRljppBQkKGGyS-PynT_qfnmeuR8FoGKlM');
+  // await promisify(doc.useServiceAccountAuth)(creds)
+  // const info = await promisify(doc.getInfo)()
+  // const sheet = info.worksheets[1];
+  // let rows = await promisify(sheet.getRows)({
+  //   offset: 1,
+  // });
+  // let leaderboard = [];
+  // for (const row of rows) {
+  //   leaderboard.push({
+  //     name: row.name,
+  //     rank: (row.rank-3000)/1000,
+  //   });
+  // }
+  // return leaderboard;
 }
 
 function rank(arr) {

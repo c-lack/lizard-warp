@@ -36,3 +36,13 @@ exports.zip = (a,b) => {
     });
     return c;
 }
+
+exports.floatSafeRemainder = (val, step) => {
+  if (val < 0) {
+    return exports.floatSafeRemainder(val + step, step);
+  } else if (val > step) {
+    return exports.floatSafeRemainder(val - step, step);
+  } else {
+    return val;
+  }
+}
