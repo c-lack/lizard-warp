@@ -150,9 +150,9 @@ class App extends Component {
           ? <GameRenderer engine={this.state.clientengine} game={this.state.game}/>
           : <div></div>
         }
-        <div>
+        {/* <div>
           <audio id="theme_audio" src={"./music/theme.mp3"} controls autoPlay loop />
-        </div>
+        </div> */}
         <div>
           <Leaderboard
             get={this.getLeaderboard}

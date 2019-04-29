@@ -1,12 +1,6 @@
-// Color scheme
-$black: #020104;
-$purple: #572663;
-$red: #B15B60;
-$beige: #AB7EB6;
-
 body {
-  background: $black;
-  color: $purple;
+  background: #020104;
+  color: #FFFFFF;
 }
 
 ul {
